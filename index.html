@@ -21,7 +21,7 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 .cw-wrap{overflow-x:auto}
 .cw-tbl{width:100%;border-collapse:collapse;font-size:.8rem;min-width:720px}
 .cw-tbl th{background:#1a3a5c;color:#fff;padding:6px 10px;text-align:right;white-space:nowrap;font-size:.72rem}
-.cw-tbl th:first-child{text-align:left;width:160px}
+.cw-tbl th:first-child{text-align:left}
 .cw-tbl td{padding:5px 10px;border-bottom:1px solid #f0f0f0;text-align:right;font-variant-numeric:tabular-nums}
 .cw-tbl td:first-child{text-align:left;font-weight:600;color:#1a3a5c}
 .cw-tbl tr.total td{font-weight:700;background:#eef5fb;border-top:2px solid #2e86c1}
@@ -34,8 +34,8 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 @media(max-width:1100px){.grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.grid{grid-template-columns:1fr}}
 .card{background:#fff;border-radius:10px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
-.card-title{font-size:.8rem;font-weight:700;color:#1a3a5c;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #eef2f7}
-.ctrl-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.ct{font-size:.8rem;font-weight:700;color:#1a3a5c;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #eef2f7}
+.cr{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .cl{font-size:.59rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#aaa;margin-bottom:3px;display:flex;align-items:center;gap:4px}
 .tog{font-size:.58rem;color:#2e86c1;text-decoration:underline;cursor:pointer}
 .chips{display:flex;flex-wrap:wrap;gap:2px}
@@ -47,259 +47,312 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 #loading h2{font-size:1rem;color:#1a3a5c}
 .spin{width:38px;height:38px;border:4px solid #dde;border-top-color:#2e86c1;border-radius:50%;animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-#err{display:none;background:#fdf0f0;border:1px solid #e74c3c;border-radius:8px;padding:12px 16px;color:#c0392b;margin-bottom:14px;font-size:.82rem}
+#err{display:none;background:#fdf0f0;border:1px solid #e74c3c;border-radius:8px;padding:12px 16px;color:#c0392b;margin-bottom:14px;font-size:.82rem;white-space:pre-wrap}
 </style>
 </head>
 <body>
-<div id="loading"><div class="spin"></div><h2>Loading Cotton On-Call Data…</h2><p id="lmsg" style="font-size:.82rem;color:#555">Fetching CSV…</p></div>
+<div id="loading"><div class="spin"></div><h2>Loading Cotton On-Call Data</h2><p id="lmsg" style="font-size:.82rem;color:#555">Fetching CSV...</p></div>
 <header>
-  <div><h1>🌾 CFTC Cotton On-Call Dashboard</h1><p>Unfixed call cotton positions · New York Cotton futures · ICE Futures U.S.</p></div>
-  <div id="badge">Loading…</div>
+  <div><h1>CFTC Cotton On-Call Dashboard</h1><p>Unfixed call cotton positions · New York Cotton futures · ICE Futures U.S.</p></div>
+  <div id="badge">Loading...</div>
 </header>
 <div class="page">
   <div id="err"></div>
   <div class="cw">
-    <h2>📋 Current Week Report</h2>
-    <div class="cw-meta" id="cw-meta">—</div>
+    <h2>Current Week Report</h2>
+    <div class="cw-meta" id="cw-meta"></div>
     <div class="cw-wrap"><table class="cw-tbl">
-      <thead><tr><th style="text-align:left">Futures Based On</th><th>Unfixed Call Sales</th><th>Chg</th><th>Unfixed Call Purchases</th><th>Chg</th><th>At Close</th><th>Chg</th><th>Old/New</th></tr></thead>
+      <thead><tr><th style="text-align:left">Futures Based On</th><th>Sales</th><th>Chg</th><th>Purchases</th><th>Chg</th><th>At Close</th><th>Chg</th><th>Crop</th></tr></thead>
       <tbody id="cw-body"></tbody>
     </table></div>
   </div>
-
-  <div class="sec">📌 Old Crop</div>
-  <div class="grid" id="grid-old"></div>
-  <div class="sec">🌐 All Crop</div>
-  <div class="grid" id="grid-all"></div>
-  <div class="sec">🌱 New Crop (All Crop − Old Crop)</div>
-  <div class="grid" id="grid-new"></div>
+  <div class="sec">Old Crop</div>
+  <div class="grid" id="g-old"></div>
+  <div class="sec">All Crop</div>
+  <div class="grid" id="g-all"></div>
+  <div class="sec">New Crop (All minus Old)</div>
+  <div class="grid" id="g-new"></div>
 </div>
-
 <script>
-const PAL=['#1a6b3c','#c0392b','#2e86c1','#8e44ad','#d35400','#16a085','#f39c12','#1a3a5c','#27ae60','#e74c3c','#7f8c8d'];
-const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const CM=[3,5,7,10,12];
-const TITLES=[
-  'Unfixed Call Purchases — Old Crop','Unfixed Call Sales — Old Crop','Imbalance (Sales−Purchases) — Old Crop',
-  'Unfixed Call Purchases — All Crop','Unfixed Call Sales — All Crop','Imbalance (Sales−Purchases) — All Crop',
-  'Unfixed Call Purchases — New Crop','Unfixed Call Sales — New Crop','Imbalance (Sales−Purchases) — New Crop'
-];
-const GRIDS=['grid-old','grid-old','grid-old','grid-all','grid-all','grid-all','grid-new','grid-new','grid-new'];
-const IS_NET=[false,false,true,false,false,true,false,false,true];
+var ALL_DATA=[], DATA={}, ALL_YEARS=[], WL=[];
+var CM=[3,5,7,10,12];
+var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var PAL=['#1a6b3c','#c0392b','#2e86c1','#8e44ad','#d35400','#16a085','#f39c12','#1a3a5c','#27ae60','#e74c3c','#7f8c8d'];
+var TITLES=['Purchases','Sales','Imbalance (Sales minus Purchases)'];
+var GRIDS=['g-old','g-all','g-new'];
+var IS_NET=[false,false,true];
+var ST=[], CH={};
+for(var ii=0;ii<9;ii++) ST.push({years:[],months:CM.slice()});
 
-let ALL_YEARS=[], WL=[], DATA={};
-const ST=Array.from({length:9},()=>({years:[],months:[...CM]}));
-const CH={};
+function yCol(y){
+  var idx=ALL_YEARS.indexOf(String(y));
+  return PAL[(idx+PAL.length)%PAL.length];
+}
 
 function parseCSV(txt){
-  const lines=txt.replace(/^\uFEFF/,'').trim().split('\n');
-  const hdrs=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
-  return lines.slice(1).map(line=>{
-    const v=[];let cur='',q=false;
-    for(let i=0;i<line.length;i++){
-      const c=line[i];
-      if(c==='"'){q=!q;continue}
-      if(c===','&&!q){v.push(cur);cur='';continue}
+  // Handle BOM, Windows (CRLF) and Mac (CR) line endings
+  txt=txt.replace(/^\uFEFF/,'');
+  txt=txt.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  var lines=txt.trim().split('\n');
+  if(lines.length<2) return [];
+  var hdrs=lines[0].split(',').map(function(h){return h.trim().replace(/^"|"$/g,'');});
+  var rdIdx=-1;
+  for(var i=0;i<hdrs.length;i++){
+    if(hdrs[i]==='Report Date'||hdrs[i]==='report_date'){rdIdx=i;break;}
+  }
+  var rows=[];
+  for(var li=1;li<lines.length;li++){
+    var line=lines[li].trim();
+    if(!line) continue;
+    var v=[],cur='',q=false;
+    for(var ci=0;ci<line.length;ci++){
+      var c=line[ci];
+      if(c==='"'){q=!q;continue;}
+      if(c===','&&!q){v.push(cur);cur='';continue;}
       cur+=c;
     }
     v.push(cur);
-    const o={};hdrs.forEach((h,i)=>o[h]=(v[i]||'').trim().replace(/\r/,''));
-    return o;
-  }).filter(r=>r['Report Date']&&r['Report Date'].includes('/'));
+    var o={};
+    for(var hi=0;hi<hdrs.length;hi++) o[hdrs[hi]]=(v[hi]||'').trim();
+    if(rdIdx>=0&&(v[rdIdx]||'').indexOf('/')>=0) rows.push(o);
+  }
+  return rows;
 }
 
 function buildData(rows){
   DATA={};
-  rows.forEach(r=>{
-    const yr=r['Report Year'];
-    const wk=Math.round(parseFloat(r['Week #']));
-    const on=r['Old/New'];
-    const mon=parseFloat(r['Month'])||0;
-    const p=parseInt(r['Unfixed Call Purchases'])||0;
-    const s=parseInt(r['Unfixed Call Sales'])||0;
-    if(!yr||!wk||on==='total') return;
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];
+    // Get year from Report Year col or derive from Report Date
+    var yr=r['Report Year']||'';
+    if(!yr&&r['Report Date']&&r['Report Date'].indexOf('/')>=0)
+      yr=r['Report Date'].split('/')[2];
+    yr=yr.trim();
+    var wk=Math.round(parseFloat(r['Week #']));
+    var on=r['Old/New']||'';
+    var mon=parseFloat(r['Month'])||0;
+    var p=parseInt(r['Unfixed Call Purchases'])||0;
+    var s=parseInt(r['Unfixed Call Sales'])||0;
+    if(!yr||!wk||on==='total') continue;
     if(!DATA[yr]) DATA[yr]={};
     if(!DATA[yr][wk]) DATA[yr][wk]={};
     if(!DATA[yr][wk][mon]) DATA[yr][wk][mon]={oP:0,oS:0,aP:0,aS:0};
-    DATA[yr][wk][mon].aP+=p; DATA[yr][wk][mon].aS+=s;
-    if(on==='old'){DATA[yr][wk][mon].oP+=p; DATA[yr][wk][mon].oS+=s;}
-  });
+    DATA[yr][wk][mon].aP+=p;
+    DATA[yr][wk][mon].aS+=s;
+    if(on==='old'){DATA[yr][wk][mon].oP+=p;DATA[yr][wk][mon].oS+=s;}
+  }
 }
 
 function getAgg(yr,wk,months,field){
   if(!DATA[yr]||!DATA[yr][wk]) return null;
-  const slot=DATA[yr][wk];
-  let tot=0,any=false;
-  months.forEach(m=>{if(slot[m]!==undefined){tot+=slot[m][field];any=true;}});
+  var slot=DATA[yr][wk],tot=0,any=false;
+  for(var i=0;i<months.length;i++){
+    if(slot[months[i]]!==undefined){tot+=slot[months[i]][field];any=true;}
+  }
   return any?tot:null;
 }
 
 function getVal(ci,yr,wk,months){
-  const crop=ci<3?'old':ci<6?'all':'new';
-  const type=ci%3; // 0=P, 1=S, 2=imbalance
+  var crop=ci<3?'old':ci<6?'all':'new';
+  var type=ci%3;
   if(crop==='old'){
-    const p=getAgg(yr,wk,months,'oP'), s=getAgg(yr,wk,months,'oS');
+    var p=getAgg(yr,wk,months,'oP'),s=getAgg(yr,wk,months,'oS');
     if(p===null&&s===null) return null;
     if(type===0) return p||0;
     if(type===1) return s||0;
     return (s||0)-(p||0);
   }
   if(crop==='all'){
-    const p=getAgg(yr,wk,months,'aP'), s=getAgg(yr,wk,months,'aS');
+    var p=getAgg(yr,wk,months,'aP'),s=getAgg(yr,wk,months,'aS');
     if(p===null&&s===null) return null;
     if(type===0) return p||0;
     if(type===1) return s||0;
     return (s||0)-(p||0);
   }
-  // new = all - old
-  const ap=getAgg(yr,wk,months,'aP'), as_=getAgg(yr,wk,months,'aS');
-  const op=getAgg(yr,wk,months,'oP'), os=getAgg(yr,wk,months,'oS');
+  var ap=getAgg(yr,wk,months,'aP'),as_=getAgg(yr,wk,months,'aS');
+  var op=getAgg(yr,wk,months,'oP'),os=getAgg(yr,wk,months,'oS');
   if(ap===null&&as_===null) return null;
-  const np=(ap||0)-(op||0), ns=(as_||0)-(os||0);
+  var np=(ap||0)-(op||0),ns=(as_||0)-(os||0);
   if(type===0) return np;
   if(type===1) return ns;
   return ns-np;
 }
 
-function yCol(y){return PAL[(ALL_YEARS.indexOf(String(y))+PAL.length)%PAL.length];}
-
 function buildDS(ci){
-  return [...ST[ci].years].sort().map(yr=>{
-    const vals=WL.map((_,i)=>getVal(ci,yr,i+1,ST[ci].months));
-    return{label:String(yr),data:vals,borderColor:yCol(yr),backgroundColor:yCol(yr)+'18',
-      borderWidth:2,tension:0.35,pointRadius:1.5,pointHoverRadius:5,fill:false,spanGaps:false};
-  });
+  var s=ST[ci],ds=[];
+  var yrs=s.years.slice().sort();
+  for(var yi=0;yi<yrs.length;yi++){
+    var yr=yrs[yi],vals=[];
+    for(var wi=0;wi<WL.length;wi++) vals.push(getVal(ci,yr,wi+1,s.months));
+    ds.push({label:String(yr),data:vals,borderColor:yCol(yr),backgroundColor:yCol(yr)+'18',
+      borderWidth:1.8,tension:0.35,pointRadius:0,pointHoverRadius:4,fill:false,spanGaps:false});
+  }
+  return ds;
 }
 
-function draw(ci){
-  const ds=buildDS(ci), net=IS_NET[ci];
+function drawChart(ci){
+  var ds=buildDS(ci),net=IS_NET[ci%3];
   if(CH[ci]){CH[ci].data.datasets=ds;CH[ci].update('none');return;}
-  const ctx=document.getElementById('ch'+ci).getContext('2d');
+  var ctx=document.getElementById('ch'+ci).getContext('2d');
   CH[ci]=new Chart(ctx,{type:'line',data:{labels:WL,datasets:ds},options:{
     responsive:true,maintainAspectRatio:false,
     interaction:{mode:'index',intersect:false},
     plugins:{
       legend:{position:'top',labels:{boxWidth:9,font:{size:8},usePointStyle:true}},
-      tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString():'–'}`}}
+      tooltip:{callbacks:{label:function(c){return ' '+c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toLocaleString():'--');}}}
     },
     scales:{
       x:{grid:{display:false},ticks:{font:{size:7},maxRotation:0,maxTicksLimit:27}},
-      y:{grid:{color:c=>(net&&c.tick.value===0)?'#1a3a5c':'#f0f0f0',lineWidth:c=>(net&&c.tick.value===0)?2:1},
-         ticks:{font:{size:8},callback:v=>v!=null?v.toLocaleString():''}}
+      y:{grid:{color:function(c){return(net&&c.tick.value===0)?'#1a3a5c':'#f0f0f0';},
+              lineWidth:function(c){return(net&&c.tick.value===0)?2:1;}},
+         ticks:{font:{size:8},callback:function(v){return v!=null?v.toLocaleString():'';}}
+        }
     }
   }});
 }
 
 function makeCard(ci){
-  const div=document.createElement('div'); div.className='card';
-  div.innerHTML=`<div class="card-title">${TITLES[ci]}</div>
-    <div class="ctrl-row">
-      <div><div class="cl">Years</div><div class="chips" id="y${ci}"></div></div>
-      <div><div class="cl">Months <span class="tog" onclick="togM(${ci})">all/none</span></div><div class="chips" id="m${ci}"></div></div>
-    </div>
-    <div class="cb"><canvas id="ch${ci}"></canvas></div>`;
-  document.getElementById(GRIDS[ci]).appendChild(div);
+  var crop=Math.floor(ci/3),type=ci%3;
+  var div=document.createElement('div');div.className='card';
+  div.innerHTML='<div class="ct">'+TITLES[type]+'</div>'
+    +'<div class="cr"><div><div class="cl">Years</div><div class="chips" id="y'+ci+'"></div></div>'
+    +'<div><div class="cl">Months <span class="tog" onclick="togM('+ci+')">all/none</span></div>'
+    +'<div class="chips" id="m'+ci+'"></div></div></div>'
+    +'<div class="cb"><canvas id="ch'+ci+'"></canvas></div>';
+  document.getElementById(GRIDS[crop]).appendChild(div);
 }
 
 function makeYChips(ci){
-  const el=document.getElementById('y'+ci); el.innerHTML='';
-  ALL_YEARS.forEach(y=>{
-    const c=document.createElement('span');
-    c.className='chip on';c.textContent=y;
-    c.style.background=yCol(y);c.style.color='#fff';c.style.borderColor='transparent';c.dataset.on='1';
-    c.onclick=()=>{
-      if(c.dataset.on==='1'){ST[ci].years=ST[ci].years.filter(v=>v!==y);c.style.background='#fff';c.style.color='#555';c.style.borderColor='#ddd';c.dataset.on='0';}
-      else{ST[ci].years.push(y);c.style.background=yCol(y);c.style.color='#fff';c.style.borderColor='transparent';c.dataset.on='1';}
-      draw(ci);
-    };
-    el.appendChild(c);
-  });
+  var el=document.getElementById('y'+ci);el.innerHTML='';
+  for(var i=0;i<ALL_YEARS.length;i++){
+    (function(y){
+      var c=document.createElement('span');c.className='chip on';c.textContent=y;
+      c.style.background=yCol(y);c.style.color='#fff';c.style.borderColor=yCol(y);c.dataset.on='1';
+      c.onclick=function(){
+        if(c.dataset.on==='1'){
+          var idx=ST[ci].years.indexOf(y);if(idx>-1)ST[ci].years.splice(idx,1);
+          c.style.background='';c.style.color='';c.style.borderColor='';c.classList.remove('on');c.dataset.on='0';
+        }else{
+          ST[ci].years.push(y);
+          c.style.background=yCol(y);c.style.color='#fff';c.style.borderColor=yCol(y);c.classList.add('on');c.dataset.on='1';
+        }
+        drawChart(ci);
+      };
+      el.appendChild(c);
+    })(ALL_YEARS[i]);
+  }
 }
 
 function makeMChips(ci){
-  const el=document.getElementById('m'+ci); el.innerHTML='';
-  CM.forEach(m=>{
-    const c=document.createElement('span');
-    c.className='chip on';c.textContent=MN[m-1];
-    c.onclick=()=>{
-      const i=ST[ci].months.indexOf(m);
-      if(i>-1){ST[ci].months.splice(i,1);c.classList.remove('on');}
-      else{ST[ci].months.push(m);c.classList.add('on');}
-      draw(ci);
-    };
-    el.appendChild(c);
-  });
+  var el=document.getElementById('m'+ci);el.innerHTML='';
+  for(var i=0;i<CM.length;i++){
+    (function(m){
+      var c=document.createElement('span');c.className='chip on';c.textContent=MN[m-1];
+      c.onclick=function(){
+        var idx=ST[ci].months.indexOf(m);
+        if(idx>-1){ST[ci].months.splice(idx,1);c.classList.remove('on');}
+        else{ST[ci].months.push(m);c.classList.add('on');}
+        drawChart(ci);
+      };
+      el.appendChild(c);
+    })(CM[i]);
+  }
 }
 
 function togM(ci){
-  const all=ST[ci].months.length===CM.length;
-  ST[ci].months=all?[]:[...CM];
-  document.getElementById('m'+ci).querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',!all));
-  draw(ci);
+  var all=ST[ci].months.length===CM.length;
+  ST[ci].months=all?[]:CM.slice();
+  document.getElementById('m'+ci).querySelectorAll('.chip').forEach(function(c){c.classList.toggle('on',!all);});
+  drawChart(ci);
 }
 
 function renderCW(rows){
-  const dates=[...new Set(rows.map(r=>r['Report Date']))].sort((a,b)=>{
-    const p=s=>{ const[m,d,y]=s.split('/').map(Number); return new Date(y,m-1,d); };
-    return p(a)-p(b);
-  });
-  const latest=dates[dates.length-1];
-  const wr=rows.filter(r=>r['Report Date']===latest);
-  const rn=wr[0]?.['Report #']||'';
-  const wn=Math.round(parseFloat(wr[0]?.['Week #']||0));
-  document.getElementById('cw-meta').textContent=`Report #${rn}  ·  Week ${wn}  ·  Data as of ${latest}  ·  In Contracts`;
-  const fmt=n=>{if(n===''||n==null) return '—'; const v=Number(n); if(isNaN(v)) return n; return v<0?`(${Math.abs(v).toLocaleString()})`:v.toLocaleString();};
-  const cc=n=>{const v=Number(n);return v>0?'pos':v<0?'neg':'';};
-  const sorted=[...wr].sort((a,b)=>{
-    if(a['Old/New']==='total') return 1; if(b['Old/New']==='total') return -1;
-    const ay=parseFloat(a['Yr'])||0, by=parseFloat(b['Yr'])||0;
+  var dateMap={};
+  for(var i=0;i<rows.length;i++){
+    var d=rows[i]['Report Date'];
+    if(d){
+      var parts=d.split('/');
+      if(parts.length===3){
+        var t=new Date(parseInt(parts[2]),parseInt(parts[0])-1,parseInt(parts[1])).getTime();
+        if(!dateMap[t]) dateMap[t]=d;
+      }
+    }
+  }
+  var times=Object.keys(dateMap).map(Number).sort(function(a,b){return a-b;});
+  if(!times.length) return;
+  var latest=dateMap[times[times.length-1]];
+  var wr=rows.filter(function(r){return r['Report Date']===latest;});
+  var rn=wr[0]?wr[0]['Report #']:'';
+  var wn=wr[0]?Math.round(parseFloat(wr[0]['Week #'])):'';
+  document.getElementById('cw-meta').textContent='Report #'+rn+'  Week '+wn+'  Data as of '+latest+'  In Contracts';
+  function fmt(n){if(n===''||n==null)return '--';var v=Number(n);if(isNaN(v))return n;return v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString();}
+  function cc(n){var v=Number(n);return v>0?'pos':v<0?'neg':'';}
+  var sorted=wr.slice().sort(function(a,b){
+    if(a['Old/New']==='total') return 1;if(b['Old/New']==='total') return -1;
+    var ay=parseFloat(a['Yr'])||0,by=parseFloat(b['Yr'])||0;
     if(ay!==by) return ay-by;
     return (parseFloat(a['Month'])||0)-(parseFloat(b['Month'])||0);
   });
-  const tb=document.getElementById('cw-body'); tb.innerHTML='';
-  sorted.forEach(r=>{
-    const on=r['Old/New']||'';
-    const tr=document.createElement('tr'); tr.className=on;
-    const bg=on==='old'?'#fff2cc':on==='total'?'#d6e4f0':on==='new1'?'#e2efda':'#fce4d6';
-    tr.innerHTML=`<td>${r['Futures Based On']||'—'}</td>
-      <td>${fmt(r['Unfixed Call Sales'])}</td><td class="${cc(r['Chg Sales'])}">${fmt(r['Chg Sales'])}</td>
-      <td>${fmt(r['Unfixed Call Purchases'])}</td><td class="${cc(r['Chg Purchases'])}">${fmt(r['Chg Purchases'])}</td>
-      <td>${fmt(r['At Close'])}</td><td class="${cc(r['Chg At Close'])}">${fmt(r['Chg At Close'])}</td>
-      <td><span style="font-size:.68rem;padding:1px 7px;border-radius:10px;background:${bg};color:#333">${on||'—'}</span></td>`;
+  var tb=document.getElementById('cw-body');tb.innerHTML='';
+  for(var i=0;i<sorted.length;i++){
+    var r=sorted[i],on=r['Old/New']||'';
+    var bg=on==='old'?'#fff2cc':on==='total'?'#dbeafe':on==='new1'?'#dcfce7':'#fef3c7';
+    var tr=document.createElement('tr');tr.className=on;
+    tr.innerHTML='<td>'+( r['Futures Based On']||'--')+'</td>'
+      +'<td>'+fmt(r['Unfixed Call Sales'])+'</td><td class="'+cc(r['Chg Sales'])+'">'+fmt(r['Chg Sales'])+'</td>'
+      +'<td>'+fmt(r['Unfixed Call Purchases'])+'</td><td class="'+cc(r['Chg Purchases'])+'">'+fmt(r['Chg Purchases'])+'</td>'
+      +'<td>'+fmt(r['At Close'])+'</td><td class="'+cc(r['Chg At Close'])+'">'+fmt(r['Chg At Close'])+'</td>'
+      +'<td><span style="font-size:.68rem;padding:1px 7px;border-radius:8px;background:'+bg+';color:#333">'+on+'</span></td>';
     tb.appendChild(tr);
-  });
+  }
 }
 
-async function boot(){
-  const lmsg=document.getElementById('lmsg'), badge=document.getElementById('badge');
-  try{
-    lmsg.textContent='Fetching data/cotton_oncall.csv…';
-    const res=await fetch('./data/cotton_oncall.csv?t='+Date.now());
-    if(!res.ok) throw new Error(`HTTP ${res.status} — make sure data/cotton_oncall.csv exists in the repo`);
-    const text=await res.text();
-    lmsg.textContent='Parsing…';
-    const rows=parseCSV(text);
-    if(!rows.length) throw new Error('No rows found. First line: '+text.split('\n')[0].substring(0,150));
-    lmsg.textContent='Building index…';
+function showErr(msg){
+  document.getElementById('err').style.display='block';
+  document.getElementById('err').textContent=msg;
+  document.getElementById('badge').textContent='Error';
+  document.getElementById('badge').className='err';
+}
+
+function boot(){
+  var lmsg=document.getElementById('lmsg');
+  var url='./data/cotton_oncall.csv?t='+Date.now();
+  lmsg.textContent='Fetching CSV...';
+  fetch(url).then(function(res){
+    if(!res.ok) throw new Error('HTTP '+res.status+' fetching '+url);
+    return res.text();
+  }).then(function(text){
+    lmsg.textContent='Parsing CSV...';
+    var rows=parseCSV(text);
+    if(!rows.length){
+      var firstLine=(text||'').split('\n')[0].substring(0,300);
+      throw new Error('No data rows found.\nFirst line: '+firstLine+'\nTotal chars: '+text.length);
+    }
+    lmsg.textContent='Building charts...';
+    ALL_DATA=rows;
     buildData(rows);
     ALL_YEARS=Object.keys(DATA).sort();
-    const maxW=Math.max(...Object.values(DATA).flatMap(y=>Object.keys(y).map(Number)));
-    WL=Array.from({length:maxW},(_,i)=>`W${i+1}`);
-    for(let ci=0;ci<9;ci++) ST[ci].years=[...ALL_YEARS];
-    lmsg.textContent='Rendering…';
+    var maxW=0;
+    for(var y in DATA) for(var w in DATA[y]){var n=parseInt(w);if(n>maxW)maxW=n;}
+    WL=[];for(var i=1;i<=maxW;i++) WL.push('W'+i);
+    for(var ci=0;ci<9;ci++) ST[ci].years=ALL_YEARS.slice();
     renderCW(rows);
-    for(let ci=0;ci<9;ci++){ makeCard(ci); makeYChips(ci); makeMChips(ci); draw(ci); }
-    const dates=[...new Set(rows.map(r=>r['Report Date']))].filter(Boolean).sort();
-    badge.textContent=`Last report: ${dates[dates.length-1]||'—'}`;
-    badge.className='ok';
-  }catch(e){
-    console.error(e);
-    document.getElementById('err').style.display='block';
-    document.getElementById('err').textContent='⚠️ '+e.message;
-    badge.textContent='Error'; badge.className='err';
-  }finally{
+    for(var ci=0;ci<9;ci++){makeCard(ci);makeYChips(ci);makeMChips(ci);drawChart(ci);}
+    var allDates=[];
+    for(var i=0;i<rows.length;i++){if(rows[i]['Report Date']) allDates.push(rows[i]['Report Date']);}
+    allDates.sort(function(a,b){
+      var pa=a.split('/'),pb=b.split('/');
+      var da=new Date(parseInt(pa[2]),parseInt(pa[0])-1,parseInt(pa[1]));
+      var db=new Date(parseInt(pb[2]),parseInt(pb[0])-1,parseInt(pb[1]));
+      return da-db;
+    });
+    document.getElementById('badge').textContent='Last report: '+(allDates[allDates.length-1]||'--');
+    document.getElementById('badge').className='ok';
+  }).catch(function(e){
+    showErr('Could not load data: '+e.message);
+  }).finally(function(){
     document.getElementById('loading').style.display='none';
-  }
+  });
 }
 boot();
 </script>
