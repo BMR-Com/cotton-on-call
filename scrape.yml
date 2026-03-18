@@ -1,0 +1,29 @@
+name: Weekly Cotton On-Call Scrape
+
+on:
+  schedule:
+    - cron: '30 19 * * 4'
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests beautifulsoup4
+      - run: python scrape.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/cotton_oncall.csv
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m "data: weekly update $(date -u +'%Y-%m-%d')"
+            git push
+          fi
