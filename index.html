@@ -272,22 +272,38 @@ header p{font-size:.78rem;opacity:.8;margin-top:3px}
 <script>
 // ── CSV parser (handles quoted fields) ──────────────────────────────────────
 function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,''));
-  return lines.slice(1).map(line => {
+  // Normalize line endings, strip BOM, trim whitespace
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/^\uFEFF/, '');
+  const lines = text.trim().split('\n').filter(l => l.trim() !== '');
+  if (lines.length < 2) { console.error('CSV has fewer than 2 lines:', lines.length); return []; }
+
+  // Parse headers — strip quotes and whitespace from every header
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^["']|["']$/g, '').trim());
+  console.log('CSV headers detected:', headers);
+  console.log('CSV total lines:', lines.length);
+
+  const rows = [];
+  for (let li = 1; li < lines.length; li++) {
+    const line = lines[li];
+    if (!line.trim()) continue;
     const vals = [];
     let cur = '', inQ = false;
     for (let i = 0; i < line.length; i++) {
       const ch = line[i];
       if (ch === '"') { inQ = !inQ; continue; }
-      if (ch === ',' && !inQ) { vals.push(cur); cur = ''; continue; }
+      if (ch === ',' && !inQ) { vals.push(cur.trim()); cur = ''; continue; }
       cur += ch;
     }
-    vals.push(cur);
+    vals.push(cur.trim());
     const obj = {};
-    headers.forEach((h, i) => obj[h] = (vals[i] || '').trim());
-    return obj;
-  }).filter(r => r.report_date);
+    headers.forEach((h, i) => { obj[h] = (vals[i] !== undefined ? vals[i] : ''); });
+    // Accept row if it has any non-empty value
+    const hasData = Object.values(obj).some(v => v !== '');
+    if (hasData) rows.push(obj);
+  }
+  console.log('CSV rows parsed:', rows.length);
+  if (rows.length > 0) console.log('First row sample:', rows[0]);
+  return rows;
 }
 
 // ── Colour palette ───────────────────────────────────────────────────────────
@@ -584,7 +600,10 @@ async function boot() {
     loadMsg.textContent = 'Parsing CSV…';
     ALL_DATA = parseCSV(text).map(enrichRow);
 
-    if (!ALL_DATA.length) throw new Error('CSV parsed but contains no rows');
+    if (!ALL_DATA.length) {
+      const preview = text.split('\n').slice(0,3).join(' || ').substring(0, 400);
+      throw new Error('0 rows parsed. CSV preview: ' + preview);
+    }
 
     // Unique years (last 10 years visible by default)
     const allYearSet = [...new Set(ALL_DATA.map(r => r._year).filter(Boolean))].sort((a,b)=>a-b);
