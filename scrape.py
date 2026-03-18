@@ -34,11 +34,26 @@ CSV_COLS = [
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-def get_old_new(cy, cm, ry):
-    if cy == ry and cm != 12:
-        return "old"
-    n = cy - ry + (1 if cm == 12 else 0)
-    return f"new{n}"
+def get_old_new(cy, cm, ry, report_month):
+    """
+    Jan-Jun: same year non-Dec=old, same year Dec=new1, higher=new n
+    Jul-Dec: same year all months + next year non-Dec = old
+             Dec of next year = new1 (cotton crop starts with Dec)
+             Then new n increments per Dec boundary
+    """
+    if report_month <= 6:
+        if cy == ry and cm != 12:
+            return "old"
+        n = cy - ry + (1 if cm == 12 else 0)
+        if n <= 0: return "old"
+        return f"new{n}"
+    else:
+        if cy == ry:
+            return "old"
+        if cy == ry + 1 and cm != 12:
+            return "old"
+        n = (cy - ry - 1) + (1 if cm == 12 else 0)
+        return f"new{n}"
 
 def to_int(s):
     try:
@@ -109,7 +124,7 @@ def parse_report(html):
                     "Unfixed Call Purchases": p, "Chg Purchases": cp,
                     "At Close": cl, "Chg At Close": cc,
                     "Yr": cy, "Month": cm,
-                    "Old/New": get_old_new(cy, cm, release_year) if release_year else "",
+                    "Old/New": get_old_new(cy, cm, release_year, mo) if release_year and mo else "",
                     "_release_year": release_year,
                 })
     return rows_out
