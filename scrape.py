@@ -142,7 +142,7 @@ def get_candidate_urls():
         "deaoncall010226.html","deaoncall010826.html","deaoncall011526.html",
         "deaoncall012226.html","deaoncall012926.html","deaoncall020526.html",
         "deaoncall021226.html","deaoncall021926.html","deaoncall022626.html",
-        "deaoncall030526.html","deaoncall031226.html","deaoncall031926.html",
+        "deaoncall030526.html","deaoncall030626.html","deaoncall031226.html","deaoncall031926.html",
         "deaoncall032626.html","deaoncall040226.html","deaoncall040926.html",
         "deaoncall041626.html","deaoncall042326.html","deaoncall043026.html",
         "deaoncall050726.html","deaoncall051426.html","deaoncall052126.html",
