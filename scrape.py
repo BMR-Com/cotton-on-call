@@ -194,33 +194,58 @@ def read_existing_dates(csv_path):
     existing = set()
     if not os.path.exists(csv_path):
         return existing
-    with open(csv_path, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            d = row.get("Report Date", "").strip()
-            if d:
-                existing.add(d)
+    for enc in ("utf-8-sig", "utf-8", "latin-1"):
+        try:
+            with open(csv_path, newline="", encoding=enc) as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    d = row.get("Report Date", "").strip()
+                    if d:
+                        existing.add(d)
+            if existing:
+                break
+        except Exception:
+            pass
+    print(f"Found {len(existing)} existing report dates in CSV")
     return existing
 
 
-def append_rows(csv_path, new_rows):
-    existing_rows = []
-    rows_before = 0
-    if os.path.exists(csv_path):
-        with open(csv_path, newline="", encoding="utf-8-sig") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                existing_rows.append(dict(row))
-        rows_before = len(existing_rows)
-        print(f"Read {rows_before} existing rows from CSV")
+def read_all_rows(csv_path):
+    """Read all existing rows from CSV. Returns (rows, row_count)."""
+    if not os.path.exists(csv_path):
+        print(f"CSV not found at: {csv_path}")
+        return [], 0
+    file_size = os.path.getsize(csv_path)
+    print(f"CSV file size: {file_size} bytes at {csv_path}")
+    if file_size < 100:
+        print(f"⚠️  CSV file is suspiciously small ({file_size} bytes) — aborting to protect data")
+        sys.exit(1)
+    rows = []
+    # Try multiple encodings
+    for enc in ("utf-8-sig", "utf-8", "latin-1"):
+        try:
+            with open(csv_path, newline="", encoding=enc) as f:
+                reader = csv.DictReader(f)
+                rows = [dict(r) for r in reader]
+            if rows:
+                print(f"Read {len(rows)} rows (encoding: {enc})")
+                return rows, len(rows)
+        except Exception as e:
+            print(f"  Encoding {enc} failed: {e}")
+    print(f"⚠️  Could not read CSV with any encoding — aborting to protect data")
+    sys.exit(1)
 
-    if rows_before == 0 and not new_rows:
-        print("⚠️  No existing rows and no new rows — skipping write to protect CSV")
-        return
+
+def append_rows(csv_path, new_rows):
+    existing_rows, rows_before = read_all_rows(csv_path)
+
+    # CRITICAL: if file exists but we read 0 rows, abort — don't wipe data
+    if os.path.exists(csv_path) and rows_before == 0:
+        print("⚠️  SAFETY ABORT: file exists but read 0 rows — not overwriting")
+        sys.exit(1)
 
     for r in new_rows:
         clean = {k: v for k, v in r.items() if not k.startswith("_")}
-        # Ensure Report Year is set
         if not clean.get("Report Year") and clean.get("Report Date","").count("/") == 2:
             clean["Report Year"] = clean["Report Date"].split("/")[2]
         existing_rows.append(clean)
@@ -233,17 +258,20 @@ def append_rows(csv_path, new_rows):
 
     existing_rows.sort(key=sort_key)
 
-    # Safety check — never write fewer rows than we started with
+    # Safety: never write fewer rows than we started with
     if len(existing_rows) < rows_before:
-        print(f"⚠️  SAFETY ABORT: would write {len(existing_rows)} rows but had {rows_before} — not overwriting")
+        print(f"⚠️  SAFETY ABORT: would write {len(existing_rows)} rows but had {rows_before}")
         sys.exit(1)
 
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
-    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+    tmp_path = csv_path + ".tmp"
+    with open(tmp_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=CSV_COLS, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(existing_rows)
 
+    # Only replace original after successful write
+    os.replace(tmp_path, csv_path)
     print(f"✅ CSV saved: {rows_before} → {len(existing_rows)} rows (+{len(existing_rows)-rows_before})")
 
 
