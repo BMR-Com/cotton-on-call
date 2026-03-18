@@ -23,7 +23,7 @@ HEADERS_NOCACHE = {
 }
 BASE      = "https://www.cftc.gov"
 BASE_PATH = "/MarketReports/CottonOnCall/HistoricalCottonOn-Call/"
-CSV_PATH  = os.path.join(os.path.dirname(__file__), "data", "cotton_oncall.csv")
+CSV_PATH  = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "cotton_oncall.csv")
 
 MONTH_MAP = {
     "january":1,"february":2,"march":3,"april":4,"may":5,"june":6,
@@ -35,7 +35,7 @@ CSV_COLS = [
     "Week #", "Report #", "Report Date", "Futures Based On",
     "Unfixed Call Sales", "Chg Sales",
     "Unfixed Call Purchases", "Chg Purchases",
-    "At Close", "Chg At Close", "Yr", "Month", "Old/New"
+    "At Close", "Chg At Close", "Yr", "Month", "Old/New", "Report Year"
 ]
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -118,6 +118,7 @@ def parse_report(html):
                     "Unfixed Call Purchases": p, "Chg Purchases": cp,
                     "At Close": cl, "Chg At Close": cc,
                     "Yr": "", "Month": "", "Old/New": "total",
+                    "Report Year": str(release_year) if release_year else "",
                     "_release_year": release_year,
                 })
             elif year_m and mon_m:
@@ -131,6 +132,7 @@ def parse_report(html):
                     "At Close": cl, "Chg At Close": cc,
                     "Yr": cy, "Month": cm,
                     "Old/New": get_old_new(cy, cm, release_year, mo) if release_year and mo else "",
+                    "Report Year": str(release_year) if release_year else "",
                     "_release_year": release_year,
                 })
     return rows_out
@@ -203,14 +205,24 @@ def read_existing_dates(csv_path):
 
 def append_rows(csv_path, new_rows):
     existing_rows = []
+    rows_before = 0
     if os.path.exists(csv_path):
-        with open(csv_path, newline="", encoding="utf-8") as f:
+        with open(csv_path, newline="", encoding="utf-8-sig") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 existing_rows.append(dict(row))
+        rows_before = len(existing_rows)
+        print(f"Read {rows_before} existing rows from CSV")
+
+    if rows_before == 0 and not new_rows:
+        print("⚠️  No existing rows and no new rows — skipping write to protect CSV")
+        return
 
     for r in new_rows:
         clean = {k: v for k, v in r.items() if not k.startswith("_")}
+        # Ensure Report Year is set
+        if not clean.get("Report Year") and clean.get("Report Date","").count("/") == 2:
+            clean["Report Year"] = clean["Report Date"].split("/")[2]
         existing_rows.append(clean)
 
     def sort_key(r):
@@ -221,13 +233,18 @@ def append_rows(csv_path, new_rows):
 
     existing_rows.sort(key=sort_key)
 
+    # Safety check — never write fewer rows than we started with
+    if len(existing_rows) < rows_before:
+        print(f"⚠️  SAFETY ABORT: would write {len(existing_rows)} rows but had {rows_before} — not overwriting")
+        sys.exit(1)
+
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=CSV_COLS, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(existing_rows)
 
-    print(f"CSV now has {len(existing_rows)} rows")
+    print(f"✅ CSV saved: {rows_before} → {len(existing_rows)} rows (+{len(existing_rows)-rows_before})")
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
