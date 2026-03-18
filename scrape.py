@@ -14,7 +14,13 @@ from bs4 import BeautifulSoup
 from datetime import date, datetime, timedelta
 import csv
 
-HEADERS   = {"User-Agent": "Mozilla/5.0 (compatible; CottonOnCallBot/1.0)"}
+HEADERS        = {"User-Agent": "Mozilla/5.0 (compatible; CottonOnCallBot/1.0)"}
+HEADERS_NOCACHE = {
+    "User-Agent":     "Mozilla/5.0 (compatible; CottonOnCallBot/1.0)",
+    "Cache-Control":  "no-cache, no-store, must-revalidate",
+    "Pragma":         "no-cache",
+    "Expires":        "0",
+}
 BASE      = "https://www.cftc.gov"
 BASE_PATH = "/MarketReports/CottonOnCall/HistoricalCottonOn-Call/"
 CSV_PATH  = os.path.join(os.path.dirname(__file__), "data", "cotton_oncall.csv")
@@ -230,7 +236,31 @@ def main():
     existing_dates = read_existing_dates(CSV_PATH)
     print(f"Existing dates in CSV: {len(existing_dates)}")
 
-    # Only check URLs from the last 60 days — no need to re-scan all 500 history
+    new_rows = []
+    reports_added = 0
+
+    # ── STEP 1: Always check the live main page first ─────────────────────────
+    # This page always shows the latest report, even before it hits the archive
+    import time as _time
+    LIVE_URL = f"https://www.cftc.gov/MarketReports/CottonOnCall/index.htm?_={int(_time.time())}"
+    print(f"Checking live page: {LIVE_URL}")
+    try:
+        r = requests.get(LIVE_URL, headers=HEADERS_NOCACHE, timeout=15)
+        if r.status_code == 200 and "Unfixed" in r.text:
+            rows = parse_report(r.text)
+            if rows:
+                rdate_str = rows[0]["Report Date"]
+                if rdate_str not in existing_dates:
+                    new_rows.extend(rows)
+                    existing_dates.add(rdate_str)
+                    reports_added += 1
+                    print(f"✅  LIVE PAGE: {rdate_str}  ({len(rows)} rows)")
+                else:
+                    print(f"⏭️  Live page already in CSV: {rdate_str}")
+    except Exception as e:
+        print(f"⚠️  Live page error: {e}")
+
+    # ── STEP 2: Check historical archive for last 60 days ────────────────────
     cutoff = datetime.now() - timedelta(days=60)
 
     all_urls = get_candidate_urls()
@@ -253,10 +283,7 @@ def main():
             except:
                 pass
 
-    print(f"Checking {len(recent_urls)} recent URLs (last 60 days)")
-
-    new_rows = []
-    reports_added = 0
+    print(f"Checking {len(recent_urls)} recent archive URLs (last 60 days)")
 
     for url in recent_urls:
         try:
