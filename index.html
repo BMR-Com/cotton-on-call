@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CFTC Cotton On-Call Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#eef2f7;color:#222}
+header{background:linear-gradient(135deg,#1a3a5c 0%,#2e86c1 100%);color:#fff;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+header h1{font-size:1.25rem;font-weight:700;letter-spacing:.02em}
+header p{font-size:.78rem;opacity:.8;margin-top:3px}
+#status-badge{font-size:.72rem;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);white-space:nowrap}
+#status-badge.ok{background:rgba(39,174,96,.3);border-color:#27ae60}
+#status-badge.err{background:rgba(231,76,60,.3);border-color:#e74c3c}
+.page{max-width:1800px;margin:0 auto;padding:16px}
+.cw-panel{background:#fff;border-radius:12px;padding:18px 22px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:18px}
+.cw-header{display:flex;align-items:baseline;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+.cw-header h2{font-size:1rem;font-weight:700;color:#1a3a5c}
+.cw-meta{font-size:.78rem;color:#666}
+.cw-table-wrap{overflow-x:auto}
+.cw-table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:700px}
+.cw-table th{background:#1a3a5c;color:#fff;padding:7px 12px;text-align:right;font-weight:600;white-space:nowrap;font-size:.75rem}
+.cw-table th:first-child{text-align:left}
+.cw-table td{padding:6px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-variant-numeric:tabular-nums}
+.cw-table td:first-child{text-align:left;font-weight:600;color:#1a3a5c}
+.cw-table tr:last-child td{font-weight:700;background:#eef5fb;border-top:2px solid #2e86c1}
+.cw-table tr.old td{background:#fffdf0}
+.cw-table tr.new1 td{background:#f6fff3}
+.cw-table tr.new2 td{background:#fff8f4}
+.cw-table tr.new3 td{background:#fff3f3}
+.cw-table .pos{color:#1a7a1a}
+.cw-table .neg{color:#c0392b}
+.chart-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(max-width:960px){.chart-grid{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.card-title{font-size:.88rem;font-weight:700;color:#1a3a5c;padding-bottom:10px;margin-bottom:10px;border-bottom:2px solid #eef2f7}
+.controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px}
+.ctrl-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#aaa;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.toggle{font-size:.6rem;font-weight:400;color:#2e86c1;text-decoration:underline;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:3px;max-width:500px}
+.chip{display:inline-block;padding:2px 8px;border-radius:14px;font-size:.67rem;cursor:pointer;border:1.5px solid #ddd;background:#fff;color:#555;transition:all .1s;white-space:nowrap;user-select:none}
+.chip:hover{border-color:#2e86c1}
+.chip.on{background:#2e86c1;color:#fff;border-color:#2e86c1;font-weight:600}
+.chart-wrap{position:relative;height:280px}
+#loading{position:fixed;inset:0;background:rgba(238,242,247,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:14px}
+#loading h2{font-size:1.1rem;color:#1a3a5c}
+#loading p{font-size:.85rem;color:#555}
+.spinner{width:42px;height:42px;border:4px solid #dde;border-top-color:#2e86c1;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#error-msg{display:none;background:#fdf0f0;border:1px solid #e74c3c;border-radius:8px;padding:14px 18px;color:#c0392b;margin-bottom:16px;font-size:.85rem}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spinner"></div><h2>Loading Cotton On-Call Data…</h2><p id="load-msg">Fetching CSV…</p></div>
+<header>
+  <div><h1>🌾 CFTC Cotton On-Call Dashboard</h1><p>Unfixed call cotton positions · New York Cotton futures · ICE Futures U.S.</p></div>
+  <div id="status-badge">Loading…</div>
+</header>
+<div class="page">
+  <div id="error-msg"></div>
+  <div class="cw-panel">
+    <div class="cw-header"><h2>📋 Current Week Report</h2><span class="cw-meta" id="cw-meta">—</span></div>
+    <div class="cw-table-wrap">
+      <table class="cw-table">
+        <thead><tr><th>Futures Based On</th><th>Unfixed Call Sales</th><th>Chg Sales</th><th>Unfixed Call Purchases</th><th>Chg Purchases</th><th>At Close</th><th>Chg At Close</th><th>Old/New</th></tr></thead>
+        <tbody id="cw-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="chart-grid">
+    <div class="card"><div class="card-title">📥 Old Crop — Unfixed Call Purchases</div><div class="controls"><div><div class="ctrl-label">Years</div><div class="chips" id="yc1"></div></div><div><div class="ctrl-label">Contract Months <span class="toggle" onclick="togMon('c1')">all/none</span></div><div class="chips" id="mc1"></div></div></div><div class="chart-wrap"><canvas id="c1"></canvas></div></div>
+    <div class="card"><div class="card-title">📤 Old Crop — Unfixed Call Sales</div><div class="controls"><div><div class="ctrl-label">Years</div><div class="chips" id="yc2"></div></div><div><div class="ctrl-label">Contract Months <span class="toggle" onclick="togMon('c2')">all/none</span></div><div class="chips" id="mc2"></div></div></div><div class="chart-wrap"><canvas id="c2"></canvas></div></div>
+    <div class="card"><div class="card-title">🛒 All Crops — Unfixed Call Purchases</div><div class="controls"><div><div class="ctrl-label">Years</div><div class="chips" id="yc3"></div></div></div><div class="chart-wrap"><canvas id="c3"></canvas></div></div>
+    <div class="card"><div class="card-title">🏷️ All Crops — Unfixed Call Sales</div><div class="controls"><div><div class="ctrl-label">Years</div><div class="chips" id="yc4"></div></div></div><div class="chart-wrap"><canvas id="c4"></canvas></div></div>
+    <div class="card"><div class="card-title">⚖️ Old Crop — Net Position (Sales − Purchases)</div><div class="controls"><div><div class="ctrl-label">Years</div><div class="chips" id="yc5"></div></div><div><div class="ctrl-label">Contract Months <span class="toggle" onclick="togMon('c5')">all/none</span></div><div class="chips" id="mc5"></div></div></div><div class="chart-wrap"><canvas id="c5"></canvas></div></div>
+    <div class="card"><div class="card-title">⚖️ All Crops — Net Position (Sales − Purchases)</div><div class="controls"><div><div class="ctrl-label">Years</div><div class="chips" id="yc6"></div></div><div><div class="ctrl-label">Contract Months <span class="toggle" onclick="togMon('c6')">all/none</span></div><div class="chips" id="mc6"></div></div></div><div class="chart-wrap"><canvas id="c6"></canvas></div></div>
+  </div>
+</div>
+<script>
+function parseCSV(text){
+  const lines=text.trim().split('\n');
+  const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(line=>{
+    const vals=[];let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch==='"'){inQ=!inQ;continue}
+      if(ch===','&&!inQ){vals.push(cur);cur='';continue}
+      cur+=ch;
+    }
+    vals.push(cur);
+    const obj={};
+    headers.forEach((h,i)=>obj[h]=(vals[i]||'').trim());
+    return obj;
+  }).filter(r=>r['Report Date']);
+}
+const PALETTE=['#1a6b3c','#c0392b','#2e86c1','#8e44ad','#d35400','#16a085','#f39c12','#27ae60','#2c3e50','#e74c3c','#7f8c8d','#2980b9'];
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const COTTON_MONTHS=[3,5,7,10,12];
+let ALL_DATA=[],ALL_YEARS=[];
+const state={c1:{years:[],months:[...COTTON_MONTHS]},c2:{years:[],months:[...COTTON_MONTHS]},c3:{years:[]},c4:{years:[]},c5:{years:[],months:[...COTTON_MONTHS]},c6:{years:[],months:[...COTTON_MONTHS]}};
+const charts={};
+const WL=Array.from({length:53},(_,i)=>`W${i+1}`);
+function yCol(y){return PALETTE[(y-(ALL_YEARS[0]||2016))%PALETTE.length]}
+function enrichRow(r){
+  if(r['Week #']!==undefined) r.week=r['Week #'];
+  if(r['Report #']!==undefined) r.report_num=r['Report #'];
+  if(r['Report Date']!==undefined) r.report_date=r['Report Date'];
+  if(r['Futures Based On']!==undefined) r.futures=r['Futures Based On'];
+  if(r['Unfixed Call Sales']!==undefined) r.sales=r['Unfixed Call Sales'];
+  if(r['Chg Sales']!==undefined) r.chg_sales=r['Chg Sales'];
+  if(r['Unfixed Call Purchases']!==undefined) r.purchases=r['Unfixed Call Purchases'];
+  if(r['Chg Purchases']!==undefined) r.chg_purchases=r['Chg Purchases'];
+  if(r['At Close']!==undefined) r.at_close=r['At Close'];
+  if(r['Chg At Close']!==undefined) r.chg_close=r['Chg At Close'];
+  if(r['Yr']!==undefined) r.contract_year=r['Yr'];
+  if(r['Month']!==undefined) r.contract_month=r['Month'];
+  if(r['Old/New']!==undefined) r.old_new=r['Old/New'];
+  r._year=parseInt(r.contract_year)||null;
+  r._week=parseInt(r.week)||null;
+  r._report_num=parseInt(r.report_num)||null;
+  r._sales=parseInt(String(r.sales||0).replace(/,/g,''))||0;
+  r._purchases=parseInt(String(r.purchases||0).replace(/,/g,''))||0;
+  r._at_close=parseInt(String(r.at_close||0).replace(/,/g,''))||0;
+  r._contract_year=parseInt(r.contract_year)||null;
+  r._contract_month=parseInt(r.contract_month)||null;
+  if(!r._year&&r.report_date){const p=String(r.report_date).split('/');if(p.length===3)r._year=parseInt(p[2]);}
+  return r;
+}
+function buildDatasets(id){
+  const s=state[id];
+  return[...s.years].sort((a,b)=>a-b).map(year=>{
+    const byW={};
+    ALL_DATA.filter(r=>r._year===year).forEach(r=>{if(!r._week)return;(byW[r._week]=byW[r._week]||[]).push(r);});
+    const vals=Array.from({length:53},(_,i)=>{
+      const w=i+1,rows=byW[w];
+      if(!rows)return null;
+      if(id==='c3'||id==='c4'){const t=rows.find(r=>r.old_new==='total');return t?(id==='c3'?t._purchases:t._sales):null;}
+      let f=id==='c6'?rows.filter(r=>r.old_new!=='total'):rows.filter(r=>r.old_new==='old');
+      if(s.months&&s.months.length)f=f.filter(r=>s.months.includes(r._contract_month));
+      if(!f.length)return null;
+      if(id==='c1')return f.reduce((a,r)=>a+r._purchases,0);
+      if(id==='c2')return f.reduce((a,r)=>a+r._sales,0);
+      if(id==='c5'||id==='c6')return f.reduce((a,r)=>a+r._sales,0)-f.reduce((a,r)=>a+r._purchases,0);
+      return null;
+    });
+    return{label:String(year),data:vals,borderColor:yCol(year),backgroundColor:yCol(year)+'18',borderWidth:2,tension:0.3,pointRadius:1.5,pointHoverRadius:5,fill:false,spanGaps:false};
+  });
+}
+const isNet=id=>id==='c5'||id==='c6';
+function draw(id){
+  const ds=buildDatasets(id);
+  if(charts[id]){charts[id].data.datasets=ds;charts[id].update('none');return;}
+  const ctx=document.getElementById(id).getContext('2d');
+  charts[id]=new Chart(ctx,{type:'line',data:{labels:WL,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9},usePointStyle:true}},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString():'–'}`}}},scales:{x:{grid:{display:false},ticks:{font:{size:8},maxRotation:0,maxTicksLimit:27}},y:{grid:{color:c=>(isNet(id)&&c.tick.value===0)?'#1a3a5c':'#f0f0f0',lineWidth:c=>(isNet(id)&&c.tick.value===0)?2:1},ticks:{font:{size:9},callback:v=>v!=null?v.toLocaleString():''}}}}});
+}
+function makeYChips(divId,id){
+  const el=document.getElementById(divId);
+  ALL_YEARS.forEach(y=>{
+    const chip=document.createElement('span');
+    chip.className='chip on';chip.textContent=y;
+    chip.style.background=yCol(y);chip.style.color='#fff';chip.style.borderColor='transparent';chip.dataset.on='1';
+    chip.onclick=()=>{
+      if(chip.dataset.on==='1'){state[id].years=state[id].years.filter(v=>v!==y);chip.style.background='#fff';chip.style.color='#555';chip.style.borderColor='#ddd';chip.dataset.on='0';}
+      else{state[id].years.push(y);chip.style.background=yCol(y);chip.style.color='#fff';chip.style.borderColor='transparent';chip.dataset.on='1';}
+      draw(id);
+    };
+    el.appendChild(chip);
+  });
+}
+function makeMChips(divId,id){
+  const el=document.getElementById(divId);if(!el)return;
+  for(let m=1;m<=12;m++){
+    const on=COTTON_MONTHS.includes(m);
+    const chip=document.createElement('span');
+    chip.className='chip'+(on?' on':'');chip.textContent=MN[m-1];
+    chip.onclick=()=>{const idx=state[id].months.indexOf(m);if(idx>-1){state[id].months.splice(idx,1);chip.classList.remove('on');}else{state[id].months.push(m);chip.classList.add('on');}draw(id);};
+    el.appendChild(chip);
+  }
+}
+function togMon(id){
+  const all12=state[id].months.length===12;
+  state[id].months=all12?[]:[1,2,3,4,5,6,7,8,9,10,11,12];
+  document.getElementById('m'+id).querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',!all12));
+  draw(id);
+}
+function renderCurrentWeek(data){
+  const dates=[...new Set(data.map(r=>r.report_date))].filter(Boolean).sort((a,b)=>new Date(a)-new Date(b));
+  const latest=dates[dates.length-1];
+  const rows=data.filter(r=>r.report_date===latest);
+  const rptNum=rows[0]?._report_num||'';
+  document.getElementById('cw-meta').textContent=`Report #${rptNum}  ·  Data as of ${latest}  ·  In Contracts`;
+  const tbody=document.getElementById('cw-tbody');tbody.innerHTML='';
+  const fmt=n=>{if(n===null||n===undefined||n==='')return'—';const v=Number(n);const s=Math.abs(v).toLocaleString();return v<0?`(${s})`:s;};
+  const cc=n=>{const v=Number(n);return v>0?'pos':v<0?'neg':'';};
+  const sorted=[...rows].sort((a,b)=>{
+    if(a.old_new==='total')return 1;if(b.old_new==='total')return-1;
+    if(a._contract_year!==b._contract_year)return a._contract_year-b._contract_year;
+    return a._contract_month-b._contract_month;
+  });
+  sorted.forEach(row=>{
+    const tr=document.createElement('tr');
+    const on=row.old_new||'';
+    if(on&&on!=='total')tr.className=on;
+    const chg_s=Number(row.chg_sales)||0,chg_p=Number(row.chg_purchases)||0,chg_cl=Number(row.chg_close)||0;
+    tr.innerHTML=`<td>${row.futures||'—'}</td><td>${fmt(row._sales)}</td><td class="${cc(chg_s)}">${fmt(chg_s)}</td><td>${fmt(row._purchases)}</td><td class="${cc(chg_p)}">${fmt(chg_p)}</td><td>${fmt(row._at_close)}</td><td class="${cc(chg_cl)}">${fmt(chg_cl)}</td><td><span style="font-size:.7rem;padding:1px 7px;border-radius:10px;background:${on==='old'?'#fff2cc':on==='new1'?'#e2efda':on==='new2'?'#fce4d6':on==='total'?'#d6e4f0':'#f4cccc'};color:#333">${on||'—'}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+async function boot(){
+  const loadMsg=document.getElementById('load-msg');
+  const badge=document.getElementById('status-badge');
+  try{
+    const res=await fetch('./data/cotton_oncall.csv?t='+Date.now());
+    if(!res.ok)throw new Error(`HTTP ${res.status} — make sure data/cotton_oncall.csv exists`);
+    const text=await res.text();
+    loadMsg.textContent='Parsing CSV…';
+    ALL_DATA=parseCSV(text).map(enrichRow);
+    if(!ALL_DATA.length)throw new Error('CSV has no rows');
+    const allYearSet=[...new Set(ALL_DATA.map(r=>r._year).filter(Boolean))].sort((a,b)=>a-b);
+    const cutoff=(allYearSet[allYearSet.length-1]||2026)-9;
+    ALL_YEARS=allYearSet.filter(y=>y>=cutoff);
+    ['c1','c2','c3','c4','c5','c6'].forEach(id=>{state[id].years=[...ALL_YEARS];});
+    loadMsg.textContent='Building dashboard…';
+    renderCurrentWeek(ALL_DATA);
+    ['c1','c2','c3','c4','c5','c6'].forEach(id=>{
+      makeYChips('yc'+(parseInt(id.replace('c',''))),id);
+      if(['c1','c2','c5','c6'].includes(id))makeMChips('mc'+(parseInt(id.replace('c',''))),id);
+      draw(id);
+    });
+    const dates=[...new Set(ALL_DATA.map(r=>r.report_date))].filter(Boolean).sort();
+    badge.textContent=`Last report: ${dates[dates.length-1]||'—'}`;
+    badge.className='ok';
+  }catch(err){
+    console.error(err);
+    document.getElementById('error-msg').style.display='block';
+    document.getElementById('error-msg').textContent='⚠️ Could not load data: '+err.message;
+    badge.textContent='Data error';badge.className='err';
+  }finally{
+    document.getElementById('loading').style.display='none';
+  }
+}
+boot();
+</script>
+</body>
+</html>
