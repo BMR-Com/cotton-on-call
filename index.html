@@ -210,7 +210,6 @@ function getVal(ci,yr,wk,months){
 
 function getMaxMinDS(ci){
   var s=ST[ci];
-  // last 20 years
   var years20=ALL_YEARS.slice(-20);
   var maxVals=[],minVals=[];
   for(var wi=0;wi<WL.length;wi++){
@@ -224,11 +223,16 @@ function getMaxMinDS(ci){
       minVals.push(Math.min.apply(null,vals));
     }else{maxVals.push(null);minVals.push(null);}
   }
+  // Fill band between max and min — max fills '+1' (to next dataset = min)
   return [
-    {label:'20yr Max',data:maxVals,borderColor:'rgba(130,130,130,0.55)',
-     borderDash:[5,4],borderWidth:1.2,tension:0.35,pointRadius:0,fill:false,spanGaps:false,order:99},
-    {label:'20yr Min',data:minVals,borderColor:'rgba(180,180,180,0.55)',
-     borderDash:[5,4],borderWidth:1.2,tension:0.35,pointRadius:0,fill:false,spanGaps:false,order:99}
+    {label:'20yr Range',data:maxVals,
+     borderColor:'rgba(74,144,217,0.2)',borderWidth:0,
+     backgroundColor:'rgba(74,144,217,0.10)',
+     fill:'+1',tension:0.35,pointRadius:0,spanGaps:false,order:98},
+    {label:'_hidden_',data:minVals,
+     borderColor:'rgba(74,144,217,0.2)',borderWidth:0,
+     backgroundColor:'transparent',
+     fill:false,tension:0.35,pointRadius:0,spanGaps:false,order:98}
   ];
 }
 
@@ -256,7 +260,7 @@ function drawChart(ci){
     interaction:{mode:'index',intersect:false},
     plugins:{
       legend:{position:'top',labels:{boxWidth:9,font:{size:8},usePointStyle:true,
-        filter:function(item){return true;}}},
+        filter:function(item){return item.text!=='_hidden_';}}},
       tooltip:{callbacks:{label:function(c){
         return ' '+c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toLocaleString():'--');
       }}}
