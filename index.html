@@ -42,7 +42,7 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 .chip{padding:2px 7px;border-radius:12px;font-size:.63rem;cursor:pointer;border:1.5px solid #ddd;background:#fff;color:#555;user-select:none;white-space:nowrap;transition:all .1s}
 .chip:hover{border-color:#2e86c1}
 .chip.on{background:#2e86c1;color:#fff;border-color:#2e86c1;font-weight:600}
-.cb{position:relative;height:255px;min-height:0}
+.cb{position:relative;height:255px;min-height:0;width:100%}
 #loading{position:fixed;inset:0;background:rgba(238,242,247,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:12px}
 #loading h2{font-size:1rem;color:#1a3a5c}
 .spin{width:38px;height:38px;border:4px solid #dde;border-top-color:#2e86c1;border-radius:50%;animation:sp .8s linear infinite}
@@ -56,7 +56,7 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 
 /* ── Print / PDF styles ────────────────────────────────────── */
 @media print {
-  @page { size: A4 landscape; margin: 4mm; }
+  @page { size: A4 landscape; margin: 3mm; }
   body { background: #fff; font-size: 8pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   #loading, .btn-print, .cr, #err, .sec { display: none !important; }
   
@@ -65,80 +65,100 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
     box-shadow: none; 
     border: 1px solid #ddd; 
     border-left: 4px solid #2e86c1;
-    padding: 6px 10px; 
-    margin-bottom: 6px; 
+    padding: 5px 8px; 
+    margin-bottom: 5px; 
     page-break-inside: avoid;
   }
-  .trader-summary h3 { font-size: 7.5pt; margin-bottom: 4px; }
-  .trader-summary p { font-size: 6.5pt; line-height: 1.3; }
+  .trader-summary h3 { font-size: 7pt; margin-bottom: 3px; }
+  .trader-summary p { font-size: 6pt; line-height: 1.3; }
   
   .sum-outer { 
     box-shadow:none; 
     border:1px solid #ddd; 
-    padding:5px; 
-    margin-bottom:6px; 
+    padding:4px; 
+    margin-bottom:5px; 
     page-break-inside: avoid;
   }
   .sum-grid { 
     display: grid;
     grid-template-columns: repeat(3, 1fr) !important;
-    gap:5px; 
+    gap:4px; 
   }
-  .sum-tbl { font-size:5pt; }
-  .sum-tbl th { font-size:4.5pt; padding:2px 3px; }
-  .sum-tbl td { padding:2px 3px; }
-  .sum-crop-hdr { font-size:5.5pt; padding:2px 5px; }
+  .sum-tbl { font-size:4.5pt; }
+  .sum-tbl th { font-size:4pt; padding:1px 2px; }
+  .sum-tbl td { padding:1px 2px; }
+  .sum-crop-hdr { font-size:5pt; padding:2px 4px; }
   
-  header { background: #1a3a5c !important; padding: 3px 8px; box-shadow: none; page-break-after: avoid; }
-  header h1 { font-size: 8pt; }
-  header p  { font-size: 6pt; }
-  .page { max-width: 100%; padding: 3px; }
-  .cw { box-shadow: none; border: 1px solid #ddd; padding: 5px; margin-bottom: 5px; border-radius: 4px; page-break-inside: avoid; }
-  .cw h2 { font-size: 7.5pt; }
-  .cw-meta { font-size: 6pt; }
-  .cw-tbl { font-size: 6pt; }
-  .cw-tbl th { font-size: 5.5pt; padding: 2px 3px; }
-  .cw-tbl td { padding: 2px 3px; }
+  header { background: #1a3a5c !important; padding: 2px 6px; box-shadow: none; page-break-after: avoid; }
+  header h1 { font-size: 7pt; }
+  header p  { font-size: 5.5pt; }
+  .page { max-width: 100%; padding: 2px; }
+  .cw { box-shadow: none; border: 1px solid #ddd; padding: 4px; margin-bottom: 4px; border-radius: 3px; page-break-inside: avoid; }
+  .cw h2 { font-size: 7pt; }
+  .cw-meta { font-size: 5.5pt; }
+  .cw-tbl { font-size: 5.5pt; }
+  .cw-tbl th { font-size: 5pt; padding: 1px 2px; }
+  .cw-tbl td { padding: 1px 2px; }
   
-  /* 3 charts per page - vertical layout, full width */
-  .grid { 
-    display: flex;
-    flex-direction: column;
-    gap: 6px; 
-    margin-bottom: 0;
-    height: 100%;
-  }
-  .card { 
-    box-shadow: none; 
-    border: 1px solid #ddd; 
-    padding: 5px; 
-    border-radius: 3px; 
-    page-break-inside: avoid;
-    min-width: 0;
-    overflow: hidden;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  .ct { font-size: 6.5pt; margin-bottom: 3px; padding-bottom: 2px; }
-  .cb { 
-    flex: 1;
-    height: auto !important; 
-    min-height: 160px;
-    position: relative;
-  }
-  .cw-tbl th { background:#1a3a5c !important; color:#fff !important; }
-  
-  /* Page breaks */
-  .page-break-before { page-break-before: always; }
-  .chart-page { 
-    page-break-before: always; 
+  /* 3 charts per page - fill entire page */
+  .chart-page {
+    page-break-before: always;
     height: 100vh;
+    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    gap: 2mm;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
   }
-  .chart-page:first-of-type { page-break-before: auto; }
+  
+  .chart-page:first-of-type {
+    page-break-before: auto;
+  }
+  
+  .grid { 
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    gap: 2mm;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .card { 
+    box-shadow: none; 
+    border: 1px solid #ddd; 
+    padding: 2px; 
+    border-radius: 2px; 
+    page-break-inside: avoid;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  .ct { display: none; } /* Hide title since it's in chart */
+  
+  .cb { 
+    flex: 1;
+    height: auto !important; 
+    min-height: 0;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .cb canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  .cw-tbl th { background:#1a3a5c !important; color:#fff !important; }
 }
 
 /* ── Summary section ───────────────────────────────────────── */
@@ -359,18 +379,18 @@ function drawChart(ci, isPrint){
   var container = document.getElementById('ch'+ci).parentNode;
   
   if(isPrint){
-    container.style.height = 'auto';
+    container.style.height = '100%';
   } else {
     container.style.height = '255px';
   }
   
   var cropIdx = Math.floor(ci/3);
   var typeIdx = ci%3;
-  var title = CROP_LABELS[cropIdx] + ' — ' + TITLES[typeIdx];
+  var titleText = CROP_LABELS[cropIdx] + ' — ' + TITLES[typeIdx];
   
   if(CH[ci]){
     CH[ci].data.datasets=ds;
-    CH[ci].options.plugins.title = {display: true, text: title, font: {size: isPrint?10:12, weight:'bold'}, color: '#1a3a5c', padding: {bottom: 10}};
+    CH[ci].options.plugins.title.text = titleText;
     CH[ci].resize();
     CH[ci].update('none');
     return;
@@ -378,22 +398,24 @@ function drawChart(ci, isPrint){
   
   var ctx=document.getElementById('ch'+ci).getContext('2d');
   CH[ci]=new Chart(ctx,{type:'line',data:{labels:WL,datasets:ds},options:{
-    responsive:true,maintainAspectRatio:false,
+    responsive:true,
+    maintainAspectRatio:false,
+    layout: {padding: {top: 2, right: 2, bottom: 2, left: 2}},
     interaction:{mode:'index',intersect:false},
     plugins:{
-      title: {display: true, text: title, font: {size: 12, weight:'bold'}, color: '#1a3a5c', padding: {bottom: 10}},
-      legend:{position:'top',labels:{boxWidth:9,font:{size:8},usePointStyle:true,
+      title: {display: true, text: titleText, font: {size: 11, weight:'bold'}, color: '#1a3a5c', padding: {top: 2, bottom: 4}},
+      legend:{position:'top',align:'end',labels:{boxWidth:8,font:{size:7},usePointStyle:true,padding:4,
         filter:function(item){return item.text!=='_hidden_';}}},
       tooltip:{callbacks:{label:function(c){
         return ' '+c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toLocaleString():'--');
       }}}
     },
     scales:{
-      x:{grid:{display:false},ticks:{font:{size:7},maxRotation:0,autoSkip:true,maxTicksLimit:MAX_WEEK}},
+      x:{grid:{display:false},ticks:{font:{size:6},maxRotation:0,autoSkip:false},display:true},
       y:{grid:{color:function(c){return(net&&c.tick.value===0)?'#1a3a5c':'#f0f0f0';},
-              lineWidth:function(c){return(net&&c.tick.value===0)?2:1;}},
-         ticks:{font:{size:8},callback:function(v){return v!=null?v.toLocaleString():'';}}
-        }
+              lineWidth:function(c){return(net&&c.tick.value===0)?2:1;},
+              ticks:{font:{size:7},callback:function(v){return v!=null?v.toLocaleString():'';},
+                     padding:2}}
     }
   }});
 }
@@ -401,8 +423,8 @@ function drawChart(ci, isPrint){
 function makeCard(ci){
   var crop=Math.floor(ci/3),type=ci%3;
   var div=document.createElement('div');div.className='card';
-  // Title now inside chart, so no separate title here
-  div.innerHTML='<div class="cr no-print"><div><div class="cl">Years <span class="tog" onclick="togAllY('+ci+')">all/none</span></div>'
+  div.innerHTML='<div class="ct">'+CROP_LABELS[crop]+' — '+TITLES[typeIdx]+'</div>'
+    +'<div class="cr no-print"><div><div class="cl">Years <span class="tog" onclick="togAllY('+ci+')">all/none</span></div>'
     +'<div class="chips" id="y'+ci+'"></div></div>'
     +'<div><div class="cl">Months <span class="tog" onclick="togM('+ci+')">all/none</span></div>'
     +'<div class="chips" id="m'+ci+'"></div></div></div>'
@@ -515,16 +537,12 @@ function generateTraderSummary(curRows, curWk, summaryData){
   
   var lines = [];
   
-  // Line 1: Old Crop analysis
   var oldTrend = old.s < old.avgS ? "below" : "above";
-  var oldExtreme = old.ps <= 10 ? "historically low" : (old.ps >= 90 ? "historically high" : "neutral");
   lines.push("Old Crop unfixed sales at " + old.s.toLocaleString() + " (" + old.ps + "%ile) are " + oldTrend + " the 20yr avg of " + old.avgS.toLocaleString() + ", with purchases " + (old.p > old.avgP ? "exceeding" : "trailing") + " average at " + old.p.toLocaleString() + " (" + old.pp + "%ile).");
   
-  // Line 2: New Crop analysis
   var newTrend = newc.s < newc.avgS ? "light" : (newc.s > newc.avgS * 1.5 ? "heavy" : "moderate");
   lines.push("New Crop shows " + newTrend + " selling interest at " + newc.s.toLocaleString() + " vs 20yr avg " + newc.avgS.toLocaleString() + " (" + newc.ps + "%ile), with imbalance of " + (newc.s-newc.p).toLocaleString() + " suggesting " + (newc.s > newc.p ? "net short bias" : "net long bias") + ".");
   
-  // Line 3: Overall market view
   var totalImb = (old.s-old.p) + (newc.s-newc.p);
   var imbDirection = totalImb > 0 ? "net short" : "net long";
   var weekChg = (old.cs + newc.cs) - (old.cp + newc.cp);
