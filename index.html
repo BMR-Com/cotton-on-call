@@ -300,7 +300,6 @@ function drawChart(ci, isPrint){
   var ds=buildDS(ci),net=IS_NET[ci%3];
   var container = document.getElementById('ch'+ci).parentNode;
   
-  // For print, set explicit dimensions
   if(isPrint){
     container.style.height = '105px';
   } else {
@@ -512,7 +511,7 @@ function renderSummary(curRows, curWk){
       +'</tr>'
       +'<tr class="sum-rng"><td>20yr Range</td>'
       +'<td colspan="2">'+(rs?fmt(rs.mn)+' – '+fmt(rs.mx):'--')+'</td>'
-      +'<td colspan="2">'+(rp?fmt(rp.mn)+' – '+fmt(rp.mx):'--')'</td>'
+      +'<td colspan="2">'+(rp?fmt(rp.mn)+' – '+fmt(rp.mx):'--')+'</td>'
       +'<td colspan="2">'+(ri?fmt(ri.mn)+' – '+fmt(ri.mx):'--')+'</td>'
       +'</tr>'
       +'</tbody></table></div>';
