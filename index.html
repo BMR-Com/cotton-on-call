@@ -52,20 +52,27 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 .trader-summary h3{font-size:.85rem;color:#1a3a5c;margin-bottom:6px;font-weight:700}
 .trader-summary p{font-size:.75rem;line-height:1.5;color:#444;margin:0}
 .sum-outer{background:#fff;border-radius:12px;padding:14px 20px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:16px;overflow-x:auto}
-.sum-outer h2{font-size:.72rem;font-weight:700;color:#1a3a5c;margin-bottom:8px}
-.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-@media(max-width:900px){.sum-grid{grid-template-columns:1fr}}
-.sum-crop{border:1px solid #dde;border-radius:8px;overflow:hidden}
-.sum-crop-hdr{background:#1a3a5c;color:#fff;font-size:.72rem;font-weight:700;padding:5px 10px}
+.sum-outer h2{font-size:.85rem;font-weight:700;color:#1a3a5c;margin-bottom:10px}
+/* Unified summary table */
 .sum-tbl{width:100%;border-collapse:collapse;font-size:.72rem}
-.sum-tbl th{background:#eef2f7;padding:4px 8px;text-align:right;font-size:.72rem;color:#555;white-space:nowrap}
-.sum-tbl th:first-child{text-align:left;width:34%}
-.sum-tbl td{padding:3px 8px;text-align:right;border-top:1px solid #f4f4f4;white-space:nowrap}
-.sum-tbl td:first-child{text-align:left;color:#666;font-size:.72rem;font-weight:600}
-.sum-cur td:not(:first-child){font-weight:700;color:#1a3a5c}
-.sum-avg td:not(:first-child){color:#999;font-size:.72rem}
-.sum-rng td{font-size:.72rem;color:#aaa}
+.sum-tbl th{background:#1a3a5c;color:#fff;padding:5px 10px;text-align:right;font-size:.72rem;white-space:nowrap}
+.sum-tbl th:first-child{text-align:left;min-width:100px}
+.sum-tbl th.crop-hdr{background:#2e86c1;font-size:.72rem}
+.sum-tbl td{padding:3px 10px;text-align:right;border-bottom:1px solid #f0f0f0;white-space:nowrap;font-size:.72rem}
+.sum-tbl td:first-child{text-align:left;color:#555;font-size:.72rem;padding-left:6px}
+.sum-tbl tr.metric-hdr td{background:#eef2f7;font-weight:700;color:#1a3a5c;font-size:.73rem;padding:5px 10px;border-top:2px solid #2e86c1}
+.sum-tbl tr.cur-row td:not(:first-child){font-weight:700;color:#1a3a5c}
+.sum-tbl tr.avg-row td:not(:first-child){color:#888}
+.sum-tbl tr.pct-row td:not(:first-child){font-size:.72rem}
 .pct-hi{color:#1a7a1a;font-weight:700}.pct-lo{color:#c0392b;font-weight:700}.pct-mid{color:#888}
+/* Range bar */
+.rng-cell{min-width:140px;padding:4px 10px !important}
+.rng-wrap{display:flex;flex-direction:column;gap:2px}
+.rng-labels{display:flex;justify-content:space-between;font-size:.6rem;color:#aaa}
+.rng-bar-outer{position:relative;height:10px;background:#e8edf2;border-radius:5px;overflow:visible}
+.rng-bar-fill{position:absolute;left:0;top:0;height:100%;border-radius:5px;opacity:.7}
+.rng-bar-marker{position:absolute;top:-3px;width:3px;height:16px;background:#1a3a5c;border-radius:2px;transform:translateX(-50%)}
+.rng-pct{font-size:.62rem;text-align:center;font-weight:600;margin-top:1px}
 @media print {
   @page { size: A4 landscape; margin: 8mm; }
   body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -433,18 +440,30 @@ function generateTraderSummary(curRows,curWk,sumData){
   document.getElementById('summary-text').innerHTML=lines.join('<br><br>');
 }
 
-function renderSummary(curRows,curWk){
+function renderSummary(curRows, curWk){
   if(!ALL_YEARS.length||!curWk) return;
+
   var years20=ALL_YEARS.slice(-20);
-  function fmt(v){if(v===null||v===undefined||v==='')return '--';var n=Math.round(Number(v));return isNaN(n)?'--':(n<0?'('+Math.abs(n).toLocaleString()+')':n.toLocaleString());}
+  var years10=ALL_YEARS.slice(-10);
+  var years5 =ALL_YEARS.slice(-5);
+
+  function fmtN(v){if(v===null||v===undefined||v==='')return '--';var n=Math.round(Number(v));return isNaN(n)?'--':(n<0?'('+Math.abs(n).toLocaleString()+')':n.toLocaleString());}
   function fmtC(v){if(v===null||v===undefined||v==='')return '--';var n=Math.round(Number(v));return isNaN(n)?'--':((n>0?'+':'')+n.toLocaleString());}
   function pCls(p){return p===null?'':p>=70?'pct-hi':p<=30?'pct-lo':'pct-mid';}
-  function pTxt(p){if(p===null)return '--';return p+'% '+(p>=70?'\u25b2':p<=30?'\u25bc':'\u25cf');}
-  function avg(a){return a.length?Math.round(a.reduce(function(x,y){return x+y;},0)/a.length):null;}
-  function rng(a){return a.length?{mn:Math.min.apply(null,a),mx:Math.max.apply(null,a)}:null;}
+  function pTxt(p){if(p===null)return '--';return p+'%ile '+(p>=70?'▲':p<=30?'▼':'●');}
+  function avgOf(a){return a.length?Math.round(a.reduce(function(x,y){return x+y;},0)/a.length):null;}
   function pct(cur,a){if(!a.length)return null;return Math.round(100*a.filter(function(v){return v<=cur;}).length/a.length);}
+
+  // Get current value for a crop/metric
   var CI={old:[0,1,2],all:[3,4,5],new:[6,7,8]};
-  var CL={old:'Old Crop',all:'All Crop',new:'New Crop (All \u2212 Old)'};
+  var CROPS=['old','all','new'];
+  var CROP_NAMES={'old':'Old Crop','all':'All Crop','new':'New Crop'};
+  var METRICS=[
+    {key:'s',label:'Sales',     ciIdx:1, chgKey:'cs'},
+    {key:'p',label:'Purchases', ciIdx:0, chgKey:'cp'},
+    {key:'imb',label:'Imbalance',ciIdx:2,chgKey:'ci'}
+  ];
+
   function getCur(rows,crop){
     var s=0,p=0,cs=0,cp=0;
     for(var i=0;i<rows.length;i++){
@@ -452,44 +471,132 @@ function renderSummary(curRows,curWk){
       if(on==='total') continue;
       if(crop==='old'&&on!=='old') continue;
       if(crop==='new'&&on==='old') continue;
-      s+=parseInt(r['Unfixed Call Sales']||0)||0; p+=parseInt(r['Unfixed Call Purchases']||0)||0;
-      cs+=parseInt(r['Chg Sales']||0)||0; cp+=parseInt(r['Chg Purchases']||0)||0;
+      s+=parseInt(r['Unfixed Call Sales']||0)||0;
+      p+=parseInt(r['Unfixed Call Purchases']||0)||0;
+      cs+=parseInt(r['Chg Sales']||0)||0;
+      cp+=parseInt(r['Chg Purchases']||0)||0;
     }
     return {s:s,p:p,imb:s-p,cs:cs,cp:cp,ci:cs-cp};
   }
-  function getHist(ci,wk){
+
+  function getHistVals(ciIdx, wk, yearSet){
     var vals=[];
-    for(var yi=0;yi<years20.length;yi++){var v=getVal(ci,years20[yi],wk,CM);if(v!==null)vals.push(v);}
+    for(var yi=0;yi<yearSet.length;yi++){
+      var v=getVal(ciIdx,yearSet[yi],wk,CM);
+      if(v!==null) vals.push(v);
+    }
     return vals;
   }
-  var sumData={},html='',crops=['old','all','new'];
-  for(var i=0;i<crops.length;i++){
-    var crop=crops[i],cur=getCur(curRows,crop),ids=CI[crop];
-    var hs=getHist(ids[1],curWk),hp=getHist(ids[0],curWk),hi=getHist(ids[2],curWk);
-    var rs=rng(hs),rp=rng(hp),ri=rng(hi);
-    var ps=pct(cur.s,hs),pp=pct(cur.p,hp),pi=pct(cur.imb,hi);
-    var avgS=avg(hs),avgP=avg(hp),avgI=avg(hi);
-    sumData[crop]={s:cur.s,p:cur.p,imb:cur.imb,cs:cur.cs,cp:cur.cp,avgS:avgS,avgP:avgP,avgI:avgI,ps:ps,pp:pp,pi:pi};
-    html+='<div class="sum-crop"><div class="sum-crop-hdr">'+CL[crop]+'</div>'
-      +'<table class="sum-tbl"><thead><tr><th></th><th>Sales</th><th>Chg</th><th>Purchases</th><th>Chg</th><th>Imbalance</th><th>Chg</th></tr></thead><tbody>'
-      +'<tr class="sum-cur"><td>This Week</td>'
-      +'<td>'+fmt(cur.s)+'</td><td class="'+(cur.cs>=0?'pos':'neg')+'">'+fmtC(cur.cs)+'</td>'
-      +'<td>'+fmt(cur.p)+'</td><td class="'+(cur.cp>=0?'pos':'neg')+'">'+fmtC(cur.cp)+'</td>'
-      +'<td>'+fmt(cur.imb)+'</td><td class="'+(cur.ci>=0?'pos':'neg')+'">'+fmtC(cur.ci)+'</td></tr>'
-      +'<tr class="sum-avg"><td>20yr Avg (Wk '+curWk+')</td><td>'+fmt(avgS)+'</td><td></td><td>'+fmt(avgP)+'</td><td></td><td>'+fmt(avgI)+'</td><td></td></tr>'
-      +'<tr class="sum-pct"><td>Pct Rank</td>'
-      +'<td class="'+pCls(ps)+'">'+pTxt(ps)+'</td><td></td>'
-      +'<td class="'+pCls(pp)+'">'+pTxt(pp)+'</td><td></td>'
-      +'<td class="'+pCls(pi)+'">'+pTxt(pi)+'</td><td></td></tr>'
-      +'<tr class="sum-rng"><td>20yr Range</td>'
-      +'<td colspan="2">'+(rs?fmt(rs.mn)+' &ndash; '+fmt(rs.mx):'--')+'</td>'
-      +'<td colspan="2">'+(rp?fmt(rp.mn)+' &ndash; '+fmt(rp.mx):'--')+'</td>'
-      +'<td colspan="2">'+(ri?fmt(ri.mn)+' &ndash; '+fmt(ri.mx):'--')+'</td></tr>'
-      +'</tbody></table></div>';
+
+  // Build per-crop data
+  var CUR={}, HIST={};
+  for(var ci=0;ci<CROPS.length;ci++){
+    var crop=CROPS[ci];
+    CUR[crop]=getCur(curRows,crop);
+    HIST[crop]={};
+    for(var mi=0;mi<METRICS.length;mi++){
+      var m=METRICS[mi];
+      var idx=CI[crop][m.ciIdx];
+      HIST[crop][m.key]={
+        v20:getHistVals(idx,curWk,years20),
+        v10:getHistVals(idx,curWk,years10),
+        v5: getHistVals(idx,curWk,years5)
+      };
+    }
   }
+
+  // Range bar HTML
+  function rangeBar(cur, vals20){
+    if(!vals20.length) return '<td class="rng-cell">--</td>';
+    var mn=Math.min.apply(null,vals20), mx=Math.max.apply(null,vals20);
+    var p=pct(cur,vals20);
+    var range=mx-mn||1;
+    var fillPct=Math.max(0,Math.min(100,Math.round((cur-mn)/range*100)));
+    var color=p>=70?'#1a7a1a':p<=30?'#c0392b':'#2e86c1';
+    var pClass=p>=70?'pct-hi':p<=30?'pct-lo':'pct-mid';
+    return '<td class="rng-cell">'
+      +'<div class="rng-wrap">'
+      +'<div class="rng-labels"><span>'+fmtN(mn)+'</span><span>'+fmtN(mx)+'</span></div>'
+      +'<div class="rng-bar-outer">'
+      +'<div class="rng-bar-fill" style="width:'+fillPct+'%;background:'+color+'"></div>'
+      +'<div class="rng-bar-marker" style="left:'+fillPct+'%"></div>'
+      +'</div>'
+      +'<div class="rng-pct '+pClass+'">'+p+'%ile</div>'
+      +'</div>'
+      +'</td>';
+  }
+
+  // Build HTML
+  var html='<table class="sum-tbl"><thead><tr>'
+    +'<th></th>'
+    +'<th class="crop-hdr" colspan="3">Old Crop</th>'
+    +'<th class="crop-hdr" colspan="3">All Crop</th>'
+    +'<th class="crop-hdr" colspan="3">New Crop</th>'
+    +'</tr><tr>'
+    +'<th></th>';
+  for(var ci=0;ci<3;ci++){
+    html+='<th>Value</th><th>Chg</th><th>20yr Range</th>';
+  }
+  html+='</tr></thead><tbody>';
+
+  for(var mi=0;mi<METRICS.length;mi++){
+    var m=METRICS[mi];
+    // Metric header row
+    html+='<tr class="metric-hdr"><td colspan="10">'+m.label+'</td></tr>';
+
+    // This week row
+    html+='<tr class="cur-row"><td>&#9658; This Week</td>';
+    for(var ci=0;ci<CROPS.length;ci++){
+      var crop=CROPS[ci], cur=CUR[crop][m.key], chg=CUR[crop][m.chgKey];
+      var chgCls=chg>0?'pct-hi':chg<0?'pct-lo':'';
+      html+='<td>'+fmtN(cur)+'</td>'
+           +'<td class="'+chgCls+'">'+fmtC(chg)+'</td>';
+      html+=rangeBar(cur, HIST[crop][m.key].v20);
+    }
+    html+='</tr>';
+
+    // 5yr avg
+    html+='<tr class="avg-row"><td>&nbsp;&nbsp;5yr Avg</td>';
+    for(var ci=0;ci<CROPS.length;ci++){
+      var a=avgOf(HIST[CROPS[ci]][m.key].v5);
+      html+='<td>'+fmtN(a)+'</td><td></td><td></td>';
+    }
+    html+='</tr>';
+
+    // 10yr avg
+    html+='<tr class="avg-row"><td>&nbsp;&nbsp;10yr Avg</td>';
+    for(var ci=0;ci<CROPS.length;ci++){
+      var a=avgOf(HIST[CROPS[ci]][m.key].v10);
+      html+='<td>'+fmtN(a)+'</td><td></td><td></td>';
+    }
+    html+='</tr>';
+
+    // 20yr avg
+    html+='<tr class="avg-row"><td>&nbsp;&nbsp;20yr Avg</td>';
+    for(var ci=0;ci<CROPS.length;ci++){
+      var a=avgOf(HIST[CROPS[ci]][m.key].v20);
+      html+='<td>'+fmtN(a)+'</td><td></td><td></td>';
+    }
+    html+='</tr>';
+  }
+
+  html+='</tbody></table>';
   document.getElementById('sum-grid').innerHTML=html;
-  generateTraderSummary(curRows,curWk,sumData);
+
+  // Also update trader summary
+  generateTraderSummary(curRows, curWk, {
+    old:{s:CUR.old.s,p:CUR.old.p,cs:CUR.old.cs,cp:CUR.old.cp,
+         avgS:avgOf(HIST.old.s.v20),avgP:avgOf(HIST.old.p.v20),
+         ps:pct(CUR.old.s,HIST.old.s.v20),pp:pct(CUR.old.p,HIST.old.p.v20)},
+    all:{s:CUR.all.s,p:CUR.all.p,cs:CUR.all.cs,cp:CUR.all.cp,
+         avgS:avgOf(HIST.all.s.v20),avgP:avgOf(HIST.all.p.v20),
+         ps:pct(CUR.all.s,HIST.all.s.v20),pp:pct(CUR.all.p,HIST.all.p.v20)},
+    new:{s:CUR.new.s,p:CUR.new.p,cs:CUR.new.cs,cp:CUR.new.cp,
+         avgS:avgOf(HIST.new.s.v20),avgP:avgOf(HIST.new.p.v20),
+         ps:pct(CUR.new.s,HIST.new.s.v20),pp:pct(CUR.new.p,HIST.new.p.v20)}
+  });
 }
+
 
 function showErr(msg){
   document.getElementById('err').style.display='block';
