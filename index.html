@@ -30,7 +30,7 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 .cw-tbl tr.total td{font-weight:700;background:#eef5fb;border-top:2px solid #2e86c1}
 .cw-tbl .pos{color:#1a7a1a}.cw-tbl .neg{color:#c0392b}
 .sec{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#1a3a5c;padding:8px 0 8px 10px;margin-top:4px;border-left:4px solid #2e86c1;margin-bottom:10px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;width:70%;margin-left:auto;margin-right:auto}
 @media(max-width:1100px){.grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.grid{grid-template-columns:1fr}}
 .card{background:#fff;border-radius:10px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
@@ -51,20 +51,20 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 .trader-summary{background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-left:4px solid #2e86c1;padding:12px 16px;margin-bottom:16px;border-radius:0 8px 8px 0}
 .trader-summary h3{font-size:.85rem;color:#1a3a5c;margin-bottom:6px;font-weight:700}
 .trader-summary p{font-size:.75rem;line-height:1.5;color:#444;margin:0}
-.sum-outer{background:#fff;border-radius:12px;padding:14px 20px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:16px}
-.sum-outer h2{font-size:.95rem;font-weight:700;color:#1a3a5c;margin-bottom:8px}
+.sum-outer{background:#fff;border-radius:12px;padding:14px 20px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:16px;overflow-x:auto}
+.sum-outer h2{font-size:.72rem;font-weight:700;color:#1a3a5c;margin-bottom:8px}
 .sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 @media(max-width:900px){.sum-grid{grid-template-columns:1fr}}
 .sum-crop{border:1px solid #dde;border-radius:8px;overflow:hidden}
-.sum-crop-hdr{background:#1a3a5c;color:#fff;font-size:.74rem;font-weight:700;padding:5px 10px}
-.sum-tbl{width:100%;border-collapse:collapse;font-size:.71rem}
-.sum-tbl th{background:#eef2f7;padding:4px 8px;text-align:right;font-size:.66rem;color:#555;white-space:nowrap}
+.sum-crop-hdr{background:#1a3a5c;color:#fff;font-size:.72rem;font-weight:700;padding:5px 10px}
+.sum-tbl{width:100%;border-collapse:collapse;font-size:.72rem}
+.sum-tbl th{background:#eef2f7;padding:4px 8px;text-align:right;font-size:.72rem;color:#555;white-space:nowrap}
 .sum-tbl th:first-child{text-align:left;width:34%}
 .sum-tbl td{padding:3px 8px;text-align:right;border-top:1px solid #f4f4f4;white-space:nowrap}
-.sum-tbl td:first-child{text-align:left;color:#666;font-size:.67rem;font-weight:600}
+.sum-tbl td:first-child{text-align:left;color:#666;font-size:.72rem;font-weight:600}
 .sum-cur td:not(:first-child){font-weight:700;color:#1a3a5c}
-.sum-avg td:not(:first-child){color:#999;font-size:.68rem}
-.sum-rng td{font-size:.64rem;color:#aaa}
+.sum-avg td:not(:first-child){color:#999;font-size:.72rem}
+.sum-rng td{font-size:.72rem;color:#aaa}
 .pct-hi{color:#1a7a1a;font-weight:700}.pct-lo{color:#c0392b;font-weight:700}.pct-mid{color:#888}
 @media print {
   @page { size: A4 landscape; margin: 8mm; }
@@ -183,12 +183,9 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
     <h2>Weekly Summary &mdash; Positions vs 20-Year History</h2>
     <div class="sum-grid" id="sum-grid"></div>
   </div>
-  <div class="sec">Old Crop</div>
   <div class="grid" id="g-old"></div>
   <div class="chart-section">
-    <div class="sec">All Crop</div>
     <div class="grid" id="g-all"></div>
-    <div class="sec">New Crop (All minus Old)</div>
     <div class="grid" id="g-new"></div>
   </div>
 </div>
