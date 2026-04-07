@@ -33,7 +33,7 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
 @media(max-width:1100px){.grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.grid{grid-template-columns:1fr}}
-.card{background:#fff;border-radius:10px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.card{background:#fff;border-radius:10px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.07);min-width:0}
 .ct{font-size:.8rem;font-weight:700;color:#1a3a5c;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #eef2f7}
 .cr{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .cl{font-size:.59rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#aaa;margin-bottom:3px;display:flex;align-items:center;gap:4px}
@@ -42,7 +42,7 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 .chip{padding:2px 7px;border-radius:12px;font-size:.63rem;cursor:pointer;border:1.5px solid #ddd;background:#fff;color:#555;user-select:none;white-space:nowrap;transition:all .1s}
 .chip:hover{border-color:#2e86c1}
 .chip.on{background:#2e86c1;color:#fff;border-color:#2e86c1;font-weight:600}
-.cb{position:relative;height:255px}
+.cb{position:relative;height:255px;min-height:0}
 #loading{position:fixed;inset:0;background:rgba(238,242,247,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:12px}
 #loading h2{font-size:1rem;color:#1a3a5c}
 .spin{width:38px;height:38px;border:4px solid #dde;border-top-color:#2e86c1;border-radius:50%;animation:sp .8s linear infinite}
@@ -51,33 +51,54 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 
 /* ── Print / PDF styles ────────────────────────────────────── */
 @media print {
-  @page { size: A4 landscape; margin: 8mm 8mm 8mm 8mm; }
-  body { background: #fff; font-size: 9pt; }
+  @page { size: A4 landscape; margin: 6mm; }
+  body { background: #fff; font-size: 8pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   #loading, .btn-print, .cr, #err { display: none !important; }
-  .sum-outer { box-shadow:none; border:1px solid #ddd; padding:8px; margin-bottom:8px; }
+  .sum-outer { box-shadow:none; border:1px solid #ddd; padding:6px; margin-bottom:6px; }
   .sum-grid { gap:4px; }
   .sum-tbl { font-size:6pt; }
   .sum-tbl th { font-size:5.5pt; padding:2px 4px; }
   .sum-tbl td { padding:2px 4px; }
-  header { background: #1a3a5c !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 6px 12px; box-shadow: none; }
-  header h1 { font-size: 10pt; }
-  header p  { font-size: 7pt; }
+  header { background: #1a3a5c !important; padding: 4px 10px; box-shadow: none; }
+  header h1 { font-size: 9pt; }
+  header p  { font-size: 6.5pt; }
   .page { max-width: 100%; padding: 4px; }
-  .cw { box-shadow: none; border: 1px solid #ddd; padding: 8px; margin-bottom: 8px; border-radius: 4px; }
-  .cw h2 { font-size: 9pt; }
-  .cw-meta { font-size: 7pt; }
-  .cw-tbl { font-size: 7pt; }
-  .cw-tbl th { font-size: 6.5pt; padding: 3px 5px; }
-  .cw-tbl td { padding: 2px 5px; }
-  .sec { font-size: 7pt; padding: 4px 0 4px 6px; margin-top: 2px; margin-bottom: 6px; }
-  /* Page 1: table + old crop (first 3 charts) */
-  /* Page break before All Crop section */
+  .cw { box-shadow: none; border: 1px solid #ddd; padding: 6px; margin-bottom: 6px; border-radius: 4px; }
+  .cw h2 { font-size: 8pt; }
+  .cw-meta { font-size: 6.5pt; }
+  .cw-tbl { font-size: 6.5pt; }
+  .cw-tbl th { font-size: 6pt; padding: 2px 4px; }
+  .cw-tbl td { padding: 2px 4px; }
+  .sec { font-size: 6.5pt; padding: 3px 0 3px 6px; margin-top: 2px; margin-bottom: 4px; }
+  
+  /* Grid fixes for print */
+  .grid { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr) !important; 
+    gap: 6px; 
+    margin-bottom: 6px; 
+    page-break-inside: avoid;
+  }
+  .card { 
+    box-shadow: none; 
+    border: 1px solid #ddd; 
+    padding: 4px; 
+    border-radius: 3px; 
+    page-break-inside: avoid;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .ct { font-size: 6.5pt; margin-bottom: 3px; padding-bottom: 2px; }
+  .cb { 
+    height: 105px !important; 
+    position: relative;
+    min-height: 0;
+  }
+  .cw-tbl th { background:#1a3a5c !important; color:#fff !important; }
+  
+  /* Page breaks */
   .page-break-before { page-break-before: always; }
-  .grid { gap: 6px; margin-bottom: 8px; }
-  .card { box-shadow: none; border: 1px solid #ddd; padding: 6px; border-radius: 3px; }
-  .ct { font-size: 7pt; margin-bottom: 4px; padding-bottom: 3px; }
-  .cb { height: 130px; }
-  .cw-tbl th { background:#1a3a5c !important; color:#fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sum-outer, .sec, .grid { page-break-inside: avoid; }
 }
 
 /* ── Summary section ───────────────────────────────────────── */
@@ -103,7 +124,7 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 <header>
   <div><h1>CFTC Cotton On-Call Dashboard</h1><p>Unfixed call cotton positions · New York Cotton futures · ICE Futures U.S.</p></div>
   <div class="hdr-right">
-    <button class="btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>
+    <button class="btn-print" onclick="printPDF()">🖨️ Print / Save PDF</button>
     <div id="badge">Loading...</div>
   </div>
 </header>
@@ -249,7 +270,6 @@ function getMaxMinDS(ci){
       minVals.push(Math.min.apply(null,vals));
     }else{maxVals.push(null);minVals.push(null);}
   }
-  // Fill band between max and min — max fills '+1' (to next dataset = min)
   return [
     {label:'20yr Range',data:maxVals,
      borderColor:'rgba(74,144,217,0.2)',borderWidth:0,
@@ -271,15 +291,29 @@ function buildDS(ci){
     ds.push({label:String(yr),data:vals,borderColor:yCol(yr),backgroundColor:yCol(yr)+'18',
       borderWidth:1.8,tension:0.35,pointRadius:0,pointHoverRadius:4,fill:false,spanGaps:false,order:1});
   }
-  // add max/min dotted lines
   var mm=getMaxMinDS(ci);
   ds.push(mm[0]); ds.push(mm[1]);
   return ds;
 }
 
-function drawChart(ci){
+function drawChart(ci, isPrint){
   var ds=buildDS(ci),net=IS_NET[ci%3];
-  if(CH[ci]){CH[ci].data.datasets=ds;CH[ci].update('none');return;}
+  var container = document.getElementById('ch'+ci).parentNode;
+  
+  // For print, set explicit dimensions
+  if(isPrint){
+    container.style.height = '105px';
+  } else {
+    container.style.height = '255px';
+  }
+  
+  if(CH[ci]){
+    CH[ci].data.datasets=ds;
+    CH[ci].resize();
+    CH[ci].update('none');
+    return;
+  }
+  
   var ctx=document.getElementById('ch'+ci).getContext('2d');
   CH[ci]=new Chart(ctx,{type:'line',data:{labels:WL,datasets:ds},options:{
     responsive:true,maintainAspectRatio:false,
@@ -333,7 +367,7 @@ function makeYChips(ci){
           c.style.background=yCol(y);c.style.color='#fff';c.style.borderColor=yCol(y);
           c.classList.add('on');c.dataset.on='1';
         }
-        drawChart(ci);
+        drawChart(ci, false);
       };
       el.appendChild(c);
     })(ALL_YEARS[i]);
@@ -350,7 +384,7 @@ function makeMChips(ci){
         var idx=ST[ci].months.indexOf(m);
         if(idx>-1){ST[ci].months.splice(idx,1);c.classList.remove('on');}
         else{ST[ci].months.push(m);c.classList.add('on');}
-        drawChart(ci);
+        drawChart(ci, false);
       };
       el.appendChild(c);
     })(CM[i]);
@@ -361,13 +395,13 @@ function togM(ci){
   var all=ST[ci].months.length===CM.length;
   ST[ci].months=all?[]:CM.slice();
   document.getElementById('m'+ci).querySelectorAll('.chip').forEach(function(c){c.classList.toggle('on',!all);});
-  drawChart(ci);
+  drawChart(ci, false);
 }
 
 function togAllY(ci){
   var all=ST[ci].years.length===ALL_YEARS.length;
   ST[ci].years=all?[]:ALL_YEARS.slice();
-  makeYChips(ci); drawChart(ci);
+  makeYChips(ci); drawChart(ci, false);
 }
 
 function renderCW(rows){
@@ -422,7 +456,6 @@ function renderSummary(curRows, curWk){
   function rng(a){return a.length?{mn:Math.min.apply(null,a),mx:Math.max.apply(null,a)}:null;}
   function pct(cur,a){if(!a.length)return null;return Math.round(100*a.filter(function(v){return v<=cur;}).length/a.length);}
 
-  // Chart indices: [purchases, sales, imbalance]
   var CI={old:[0,1,2],all:[3,4,5],new:[6,7,8]};
   var CLABELS={old:'Old Crop',all:'All Crop',new:'New Crop (All − Old)'};
 
@@ -479,7 +512,7 @@ function renderSummary(curRows, curWk){
       +'</tr>'
       +'<tr class="sum-rng"><td>20yr Range</td>'
       +'<td colspan="2">'+(rs?fmt(rs.mn)+' – '+fmt(rs.mx):'--')+'</td>'
-      +'<td colspan="2">'+(rp?fmt(rp.mn)+' – '+fmt(rp.mx):'--')+'</td>'
+      +'<td colspan="2">'+(rp?fmt(rp.mn)+' – '+fmt(rp.mx):'--')'</td>'
       +'<td colspan="2">'+(ri?fmt(ri.mn)+' – '+fmt(ri.mx):'--')+'</td>'
       +'</tr>'
       +'</tbody></table></div>';
@@ -493,6 +526,30 @@ function showErr(msg){
   document.getElementById('err').textContent=msg;
   document.getElementById('badge').textContent='Error';
   document.getElementById('badge').className='err';
+}
+
+// Print/PDF handler with Chart.js resize fix
+function printPDF(){
+  // Resize all charts for print dimensions before printing
+  for(var ci=0;ci<9;ci++){
+    drawChart(ci, true);
+  }
+  
+  // Small delay to ensure resize completes
+  setTimeout(function(){
+    window.print();
+    
+    // Restore screen dimensions after print dialog closes
+    setTimeout(function(){
+      for(var ci=0;ci<9;ci++){
+        var container = document.getElementById('ch'+ci).parentNode;
+        container.style.height = '255px';
+        if(CH[ci]){
+          CH[ci].resize();
+        }
+      }
+    }, 100);
+  }, 100);
 }
 
 function boot(){
@@ -513,7 +570,6 @@ function boot(){
     for(var y in DATA) for(var w in DATA[y]){var n=parseInt(w);if(n>maxW)maxW=n;}
     WL=[]; for(var i=1;i<=maxW;i++) WL.push('W'+i);
 
-    // Default: last 5 years, skip 2004 & 2005
     var curY=new Date().getFullYear();
     var defYears=ALL_YEARS.filter(function(y){
       var yi=parseInt(y);
@@ -522,7 +578,6 @@ function boot(){
     for(var ci=0;ci<9;ci++) ST[ci].years=defYears.slice();
 
     renderCW(rows);
-    // Get current week for summary
     var _sumWk=0;
     for(var _i=0;_i<rows.length;_i++){try{var _w=Math.round(parseFloat(rows[_i]['Week #']));if(_w){_sumWk=_w;break;}}catch(e){}}
     var _sumDates={};
@@ -531,7 +586,7 @@ function boot(){
     var _latest=_sumTimes.length?_sumDates[_sumTimes[_sumTimes.length-1]]:'';
     var _curRows=rows.filter(function(r){return r['Report Date']===_latest;});
     renderSummary(_curRows,_sumWk);
-    for(var ci=0;ci<9;ci++){makeCard(ci);makeYChips(ci);makeMChips(ci);drawChart(ci);}
+    for(var ci=0;ci<9;ci++){makeCard(ci);makeYChips(ci);makeMChips(ci);drawChart(ci, false);}
 
     var allDates=[];
     for(var i=0;i<rows.length;i++){if(rows[i]['Report Date']) allDates.push(rows[i]['Report Date']);}
