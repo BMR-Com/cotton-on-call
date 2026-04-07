@@ -33,7 +33,7 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
 @media(max-width:1100px){.grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.grid{grid-template-columns:1fr}}
-.card{background:#fff;border-radius:10px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.07);min-width:0}
+.card{background:#fff;border-radius:10px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
 .ct{font-size:.8rem;font-weight:700;color:#1a3a5c;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #eef2f7}
 .cr{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .cl{font-size:.59rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#aaa;margin-bottom:3px;display:flex;align-items:center;gap:4px}
@@ -42,126 +42,15 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 .chip{padding:2px 7px;border-radius:12px;font-size:.63rem;cursor:pointer;border:1.5px solid #ddd;background:#fff;color:#555;user-select:none;white-space:nowrap;transition:all .1s}
 .chip:hover{border-color:#2e86c1}
 .chip.on{background:#2e86c1;color:#fff;border-color:#2e86c1;font-weight:600}
-.cb{position:relative;height:255px;min-height:0;width:100%}
+.cb{position:relative;height:255px}
 #loading{position:fixed;inset:0;background:rgba(238,242,247,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:12px}
 #loading h2{font-size:1rem;color:#1a3a5c}
 .spin{width:38px;height:38px;border:4px solid #dde;border-top-color:#2e86c1;border-radius:50%;animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 #err{display:none;background:#fdf0f0;border:1px solid #e74c3c;border-radius:8px;padding:12px 16px;color:#c0392b;margin-bottom:14px;font-size:.82rem;white-space:pre-wrap}
-
-/* Trader Summary Box */
 .trader-summary{background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-left:4px solid #2e86c1;padding:12px 16px;margin-bottom:16px;border-radius:0 8px 8px 0}
 .trader-summary h3{font-size:.85rem;color:#1a3a5c;margin-bottom:6px;font-weight:700}
 .trader-summary p{font-size:.75rem;line-height:1.5;color:#444;margin:0}
-
-/* ── Print / PDF styles ────────────────────────────────────── */
-@media print {
-  @page { size: A4 landscape; margin: 3mm; }
-  body { background: #fff; font-size: 8pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  #loading, .btn-print, .cr, #err, .sec { display: none !important; }
-  
-  /* Trader summary print */
-  .trader-summary { 
-    box-shadow: none; 
-    border: 1px solid #ddd; 
-    border-left: 4px solid #2e86c1;
-    padding: 5px 8px; 
-    margin-bottom: 5px; 
-    page-break-inside: avoid;
-  }
-  .trader-summary h3 { font-size: 7pt; margin-bottom: 3px; }
-  .trader-summary p { font-size: 6pt; line-height: 1.3; }
-  
-  .sum-outer { 
-    box-shadow:none; 
-    border:1px solid #ddd; 
-    padding:4px; 
-    margin-bottom:5px; 
-    page-break-inside: avoid;
-  }
-  .sum-grid { 
-    display: grid;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap:4px; 
-  }
-  .sum-tbl { font-size:4.5pt; }
-  .sum-tbl th { font-size:4pt; padding:1px 2px; }
-  .sum-tbl td { padding:1px 2px; }
-  .sum-crop-hdr { font-size:5pt; padding:2px 4px; }
-  
-  header { background: #1a3a5c !important; padding: 2px 6px; box-shadow: none; page-break-after: avoid; }
-  header h1 { font-size: 8pt; }
-  header p  { font-size: 6pt; }
-  .page { max-width: 100%; padding: 2px; }
-  .cw { box-shadow: none; border: 1px solid #ddd; padding: 4px; margin-bottom: 4px; border-radius: 3px; page-break-inside: avoid; }
-  .cw h2 { font-size: 7.5pt; }
-  .cw-meta { font-size: 6pt; }
-  .cw-tbl { font-size: 6pt; }
-  .cw-tbl th { font-size: 5.5pt; padding: 1px 2px; }
-  .cw-tbl td { padding: 1px 2px; }
-  
-  /* 3 charts per page - fill entire page */
-  .chart-page {
-    page-break-before: always;
-    height: 100vh;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 2mm;
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-  }
-  
-  .chart-page:first-of-type {
-    page-break-before: auto;
-  }
-  
-  .grid { 
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    gap: 2mm;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .card { 
-    box-shadow: none; 
-    border: 1px solid #ddd; 
-    padding: 2px; 
-    border-radius: 2px; 
-    page-break-inside: avoid;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    width: 100%;
-    overflow: hidden;
-  }
-  
-  .ct { display: none; } /* Hide title since it's in chart */
-  
-  .cb { 
-    flex: 1;
-    height: auto !important; 
-    min-height: 0;
-    width: 100%;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .cb canvas {
-    width: 100% !important;
-    height: 100% !important;
-  }
-  
-  .cw-tbl th { background:#1a3a5c !important; color:#fff !important; }
-}
-
-/* ── Summary section ───────────────────────────────────────── */
 .sum-outer{background:#fff;border-radius:12px;padding:14px 20px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:16px}
 .sum-outer h2{font-size:.95rem;font-weight:700;color:#1a3a5c;margin-bottom:8px}
 .sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
@@ -176,78 +65,84 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 .sum-cur td:not(:first-child){font-weight:700;color:#1a3a5c}
 .sum-avg td:not(:first-child){color:#999;font-size:.68rem}
 .sum-rng td{font-size:.64rem;color:#aaa}
-.pct-hi{color:#1a7a1a;font-weight:700} .pct-lo{color:#c0392b;font-weight:700} .pct-mid{color:#888}
+.pct-hi{color:#1a7a1a;font-weight:700}.pct-lo{color:#c0392b;font-weight:700}.pct-mid{color:#888}
+@media print{
+  @page{size:A4 landscape;margin:8mm}
+  body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #loading,.btn-print,.cr,#err{display:none!important}
+  header{background:#1a3a5c!important;padding:4px 10px;box-shadow:none}
+  header h1{font-size:9pt}header p{font-size:7pt}
+  .page{max-width:100%;padding:2px}
+  .trader-summary{padding:4px 8px;margin-bottom:4px;border:1px solid #ddd;border-left:3px solid #2e86c1}
+  .trader-summary h3{font-size:6.5pt}.trader-summary p{font-size:5.5pt;line-height:1.3}
+  .cw{box-shadow:none;border:1px solid #ddd;padding:4px;margin-bottom:4px;page-break-inside:avoid}
+  .cw h2{font-size:7.5pt}.cw-meta{font-size:6pt}
+  .cw-tbl{font-size:5.5pt}
+  .cw-tbl th{font-size:5pt;padding:1px 3px;background:#1a3a5c!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .cw-tbl td{padding:1px 3px}
+  .sum-outer{box-shadow:none;border:1px solid #ddd;padding:4px;margin-bottom:4px;page-break-inside:avoid}
+  .sum-outer h2{font-size:7pt;margin-bottom:3px}
+  .sum-grid{gap:3px}
+  .sum-tbl{font-size:5pt}.sum-tbl th{font-size:4.5pt;padding:1px 2px}.sum-tbl td{padding:1px 2px}
+  .sum-crop-hdr{font-size:5.5pt;padding:2px 4px}
+  .sec{display:none}
+  .chart-section{page-break-before:always}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr)!important;gap:6px;margin-bottom:0;page-break-inside:avoid}
+  .card{box-shadow:none;border:1px solid #ddd;padding:3px;page-break-inside:avoid}
+  .ct{font-size:6pt;margin-bottom:2px;padding-bottom:2px}
+  .cb{height:180px!important}
+}
 </style>
 </head>
 <body>
 <div id="loading"><div class="spin"></div><h2>Loading Cotton On-Call Data</h2><p id="lmsg" style="font-size:.82rem;color:#555">Fetching CSV...</p></div>
 <header>
-  <div><h1>CFTC Cotton On-Call Dashboard</h1><p>Unfixed call cotton positions · New York Cotton futures · ICE Futures U.S.</p></div>
+  <div><h1>CFTC Cotton On-Call Dashboard</h1><p>Unfixed call cotton positions &middot; New York Cotton futures &middot; ICE Futures U.S.</p></div>
   <div class="hdr-right">
-    <button class="btn-print" onclick="printPDF()">🖨️ Print / Save PDF</button>
+    <button class="btn-print" onclick="window.print()">&#128424; Print / Save PDF</button>
     <div id="badge">Loading...</div>
   </div>
 </header>
 <div class="page">
   <div id="err"></div>
-  
-  <!-- Trader Summary -->
-  <div class="trader-summary" id="trader-summary">
-    <h3>📊 Market Summary</h3>
-    <p id="summary-text">Loading analysis...</p>
-  </div>
-  
+  <div class="trader-summary"><h3>&#128202; Market Summary</h3><p id="summary-text">Loading analysis...</p></div>
   <div class="cw">
     <h2>Current Week Report</h2>
     <div class="cw-meta" id="cw-meta"></div>
     <div class="cw-wrap"><table class="cw-tbl">
       <thead><tr>
         <th style="text-align:left">Futures Based On</th>
-        <th>Sales</th><th>Chg</th>
-        <th>Purchases</th><th>Chg</th>
-        <th>At Close</th><th>Chg</th>
+        <th>Sales</th><th>Chg</th><th>Purchases</th><th>Chg</th><th>At Close</th><th>Chg</th>
       </tr></thead>
       <tbody id="cw-body"></tbody>
     </table></div>
   </div>
-
   <div class="sum-outer">
-    <h2>Weekly Summary — Positions vs 20-Year History</h2>
+    <h2>Weekly Summary &mdash; Positions vs 20-Year History</h2>
     <div class="sum-grid" id="sum-grid"></div>
   </div>
-  
-  <!-- Page 2: Old Crop Charts -->
-  <div class="chart-page">
-    <div class="grid" id="g-old"></div>
-  </div>
-
-  <!-- Page 3: All Crop Charts -->
-  <div class="chart-page">
+  <div class="sec">Old Crop</div>
+  <div class="grid" id="g-old"></div>
+  <div class="chart-section">
+    <div class="sec">All Crop</div>
     <div class="grid" id="g-all"></div>
-  </div>
-
-  <!-- Page 4: New Crop Charts -->
-  <div class="chart-page">
+    <div class="sec">New Crop (All minus Old)</div>
     <div class="grid" id="g-new"></div>
   </div>
 </div>
-
 <script>
-var ALL_DATA=[], DATA={}, ALL_YEARS=[], WL=[], MAX_WEEK=52;
+var ALL_DATA=[], DATA={}, ALL_YEARS=[], WL=[];
 var CM=[3,5,7,10,12];
 var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-var PAL=['#1a6b3c','#c0392b','#2e86c1','#8e44ad','#d35400','#16a085','#f39c12','#1a3a5c','#27ae60','#e74c3c','#7f8c8d','#2980b9','#8e44ad','#c0392b','#27ae60'];
+var PAL=['#1a6b3c','#c0392b','#2e86c1','#8e44ad','#d35400','#16a085','#f39c12','#1a3a5c','#27ae60','#e74c3c','#7f8c8d','#2980b9'];
 var TITLES=['Purchases','Sales','Imbalance (Sales minus Purchases)'];
-var CROP_LABELS=['Old Crop','All Crop','New Crop (All − Old)'];
+var CROP_LABELS=['Old Crop','All Crop','New Crop (All \u2212 Old)'];
 var GRIDS=['g-old','g-all','g-new'];
 var IS_NET=[false,false,true];
 var ST=[], CH={};
 for(var ii=0;ii<9;ii++) ST.push({years:[],months:CM.slice()});
 
-function yCol(y){
-  var idx=ALL_YEARS.indexOf(String(y));
-  return PAL[idx%PAL.length];
-}
+function yCol(y){var idx=ALL_YEARS.indexOf(String(y));return PAL[idx%PAL.length];}
 
 function parseCSV(txt){
   txt=txt.replace(/^\uFEFF/,'').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
@@ -258,13 +153,13 @@ function parseCSV(txt){
   for(var i=0;i<hdrs.length;i++){if(hdrs[i]==='Report Date'){rdIdx=i;break;}}
   var rows=[];
   for(var li=1;li<lines.length;li++){
-    var line=lines[li].trim(); if(!line) continue;
+    var line=lines[li].trim();if(!line) continue;
     var v=[],cur='',q=false;
     for(var ci=0;ci<line.length;ci++){
-      var c=line[ci];
-      if(c==='"'){q=!q;continue;}
-      if(c===','&&!q){v.push(cur);cur='';continue;}
-      cur+=c;
+      var ch=line[ci];
+      if(ch==='"'){q=!q;continue;}
+      if(ch===','&&!q){v.push(cur);cur='';continue;}
+      cur+=ch;
     }
     v.push(cur);
     var o={};
@@ -276,12 +171,10 @@ function parseCSV(txt){
 
 function buildData(rows){
   DATA={};
-  MAX_WEEK=0;
   for(var i=0;i<rows.length;i++){
     var r=rows[i];
     var yr=r['Report Year']||'';
-    if(!yr&&r['Report Date']&&r['Report Date'].indexOf('/')>=0)
-      yr=r['Report Date'].split('/')[2];
+    if(!yr&&r['Report Date']&&r['Report Date'].indexOf('/')>=0) yr=r['Report Date'].split('/')[2];
     yr=yr.trim();
     var wk=Math.round(parseFloat(r['Week #']));
     var on=r['Old/New']||'';
@@ -289,133 +182,98 @@ function buildData(rows){
     var p=parseInt(r['Unfixed Call Purchases'])||0;
     var s=parseInt(r['Unfixed Call Sales'])||0;
     if(!yr||!wk||on==='total') continue;
-    if(wk>MAX_WEEK) MAX_WEEK=wk;
     if(!DATA[yr]) DATA[yr]={};
     if(!DATA[yr][wk]) DATA[yr][wk]={};
     if(!DATA[yr][wk][mon]) DATA[yr][wk][mon]={oP:0,oS:0,aP:0,aS:0};
     DATA[yr][wk][mon].aP+=p; DATA[yr][wk][mon].aS+=s;
     if(on==='old'){DATA[yr][wk][mon].oP+=p; DATA[yr][wk][mon].oS+=s;}
   }
-  WL=[];
-  for(var i=1;i<=MAX_WEEK;i++) WL.push('W'+i);
 }
 
 function getAgg(yr,wk,months,field){
   if(!DATA[yr]||!DATA[yr][wk]) return null;
   var slot=DATA[yr][wk],tot=0,any=false;
-  for(var i=0;i<months.length;i++){
-    if(slot[months[i]]!==undefined){tot+=slot[months[i]][field];any=true;}
-  }
+  for(var i=0;i<months.length;i++){if(slot[months[i]]!==undefined){tot+=slot[months[i]][field];any=true;}}
   return any?tot:null;
 }
 
 function getVal(ci,yr,wk,months){
-  var crop=ci<3?'old':ci<6?'all':'new';
-  var type=ci%3;
+  var crop=ci<3?'old':ci<6?'all':'new',type=ci%3;
   if(crop==='old'){
     var p=getAgg(yr,wk,months,'oP'),s=getAgg(yr,wk,months,'oS');
     if(p===null&&s===null) return null;
-    if(type===0) return p||0; if(type===1) return s||0;
-    return (s||0)-(p||0);
+    if(type===0) return p||0; if(type===1) return s||0; return (s||0)-(p||0);
   }
   if(crop==='all'){
     var p=getAgg(yr,wk,months,'aP'),s=getAgg(yr,wk,months,'aS');
     if(p===null&&s===null) return null;
-    if(type===0) return p||0; if(type===1) return s||0;
-    return (s||0)-(p||0);
+    if(type===0) return p||0; if(type===1) return s||0; return (s||0)-(p||0);
   }
   var ap=getAgg(yr,wk,months,'aP'),as_=getAgg(yr,wk,months,'aS');
   var op=getAgg(yr,wk,months,'oP'),os=getAgg(yr,wk,months,'oS');
   if(ap===null&&as_===null) return null;
   var np=(ap||0)-(op||0),ns=(as_||0)-(os||0);
-  if(type===0) return np; if(type===1) return ns;
-  return ns-np;
+  if(type===0) return np; if(type===1) return ns; return ns-np;
 }
 
 function getMaxMinDS(ci){
-  var s=ST[ci];
-  var years20=ALL_YEARS.slice(-20);
-  var maxVals=[],minVals=[];
+  var s=ST[ci],years20=ALL_YEARS.slice(-20),maxV=[],minV=[];
   for(var wi=0;wi<WL.length;wi++){
     var wk=wi+1,vals=[];
-    for(var yi=0;yi<years20.length;yi++){
-      var v=getVal(ci,years20[yi],wk,s.months);
-      if(v!==null) vals.push(v);
-    }
-    if(vals.length){
-      maxVals.push(Math.max.apply(null,vals));
-      minVals.push(Math.min.apply(null,vals));
-    }else{maxVals.push(null);minVals.push(null);}
+    for(var yi=0;yi<years20.length;yi++){var v=getVal(ci,years20[yi],wk,s.months);if(v!==null) vals.push(v);}
+    if(vals.length){maxV.push(Math.max.apply(null,vals));minV.push(Math.min.apply(null,vals));}
+    else{maxV.push(null);minV.push(null);}
   }
   return [
-    {label:'20yr Range',data:maxVals,
-     borderColor:'rgba(74,144,217,0.2)',borderWidth:0,
-     backgroundColor:'rgba(74,144,217,0.10)',
-     fill:'+1',tension:0.35,pointRadius:0,spanGaps:false,order:98},
-    {label:'_hidden_',data:minVals,
-     borderColor:'rgba(74,144,217,0.2)',borderWidth:0,
-     backgroundColor:'transparent',
-     fill:false,tension:0.35,pointRadius:0,spanGaps:false,order:98}
+    {label:'20yr Range',data:maxV,borderColor:'rgba(74,144,217,0.2)',borderWidth:0,
+     backgroundColor:'rgba(74,144,217,0.10)',fill:'+1',tension:0.35,pointRadius:0,spanGaps:false,order:98},
+    {label:'_hidden_',data:minV,borderColor:'rgba(74,144,217,0.2)',borderWidth:0,
+     backgroundColor:'transparent',fill:false,tension:0.35,pointRadius:0,spanGaps:false,order:98}
   ];
 }
 
 function buildDS(ci){
-  var s=ST[ci],ds=[];
-  var yrs=s.years.slice().sort();
+  var s=ST[ci],ds=[],yrs=s.years.slice().sort();
   for(var yi=0;yi<yrs.length;yi++){
     var yr=yrs[yi],vals=[];
     for(var wi=0;wi<WL.length;wi++) vals.push(getVal(ci,yr,wi+1,s.months));
     ds.push({label:String(yr),data:vals,borderColor:yCol(yr),backgroundColor:yCol(yr)+'18',
       borderWidth:1.8,tension:0.35,pointRadius:0,pointHoverRadius:4,fill:false,spanGaps:false,order:1});
   }
-  var mm=getMaxMinDS(ci);
-  ds.push(mm[0]); ds.push(mm[1]);
+  var mm=getMaxMinDS(ci); ds.push(mm[0]); ds.push(mm[1]);
   return ds;
 }
 
-function drawChart(ci, isPrint){
+function drawChart(ci){
   var ds=buildDS(ci),net=IS_NET[ci%3];
-  var cropIdx = Math.floor(ci/3);
-  var typeIdx = ci%3;
-  var titleText = CROP_LABELS[cropIdx] + ' — ' + TITLES[typeIdx];
-  
-  if(CH[ci]){
-    CH[ci].data.datasets=ds;
-    CH[ci].options.plugins.title.text = titleText;
-    CH[ci].update('none');
-    return;
-  }
-  
+  if(CH[ci]){CH[ci].data.datasets=ds;CH[ci].update('none');return;}
   var ctx=document.getElementById('ch'+ci).getContext('2d');
   CH[ci]=new Chart(ctx,{type:'line',data:{labels:WL,datasets:ds},options:{
-    responsive:true,
-    maintainAspectRatio:false,
-    layout: {padding: {top: 2, right: 2, bottom: 2, left: 2}},
+    responsive:true,maintainAspectRatio:false,
     interaction:{mode:'index',intersect:false},
     plugins:{
-      title: {display: true, text: titleText, font: {size: 11, weight:'bold'}, color: '#1a3a5c', padding: {top: 2, bottom: 4}},
-      legend:{position:'top',align:'end',labels:{boxWidth:8,font:{size:7},usePointStyle:true,padding:4,
+      legend:{position:'top',labels:{boxWidth:9,font:{size:8},usePointStyle:true,
         filter:function(item){return item.text!=='_hidden_';}}},
       tooltip:{callbacks:{label:function(c){
         return ' '+c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toLocaleString():'--');
       }}}
     },
     scales:{
-      x:{grid:{display:false},ticks:{font:{size:6},maxRotation:0,autoSkip:false},display:true},
-      y:{grid:{color:function(c){return(net&&c.tick.value===0)?'#1a3a5c':'#f0f0f0';},
-              lineWidth:function(c){return(net&&c.tick.value===0)?2:1;},
-              ticks:{font:{size:7},callback:function(v){return v!=null?v.toLocaleString():'';},
-                     padding:2}}
+      x:{grid:{display:false},ticks:{font:{size:7},maxRotation:0,maxTicksLimit:27}},
+      y:{
+        grid:{color:function(c){return(net&&c.tick.value===0)?'#1a3a5c':'#f0f0f0';},
+             lineWidth:function(c){return(net&&c.tick.value===0)?2:1;}},
+        ticks:{font:{size:8},callback:function(v){return v!=null?v.toLocaleString():'';}}
+      }
     }
   }});
 }
 
 function makeCard(ci){
-  var crop=Math.floor(ci/3);
-  var type=ci%3;
+  var crop=Math.floor(ci/3),type=ci%3;
   var div=document.createElement('div');div.className='card';
-  div.innerHTML='<div class="ct">'+CROP_LABELS[crop]+' — '+TITLES[type]+'</div>'
-    +'<div class="cr no-print"><div><div class="cl">Years <span class="tog" onclick="togAllY('+ci+')">all/none</span></div>'
+  div.innerHTML='<div class="ct">'+CROP_LABELS[crop]+' &mdash; '+TITLES[type]+'</div>'
+    +'<div class="cr"><div><div class="cl">Years <span class="tog" onclick="togAllY('+ci+')">all/none</span></div>'
     +'<div class="chips" id="y'+ci+'"></div></div>'
     +'<div><div class="cl">Months <span class="tog" onclick="togM('+ci+')">all/none</span></div>'
     +'<div class="chips" id="m'+ci+'"></div></div></div>'
@@ -428,9 +286,7 @@ function makeYChips(ci){
   for(var i=0;i<ALL_YEARS.length;i++){
     (function(y){
       var isOn=ST[ci].years.indexOf(y)>=0;
-      var c=document.createElement('span');
-      c.className='chip'+(isOn?' on':'');
-      c.textContent=y;
+      var c=document.createElement('span');c.className='chip'+(isOn?' on':'');c.textContent=y;
       if(isOn){c.style.background=yCol(y);c.style.color='#fff';c.style.borderColor=yCol(y);}
       c.dataset.on=isOn?'1':'0';
       c.onclick=function(){
@@ -439,11 +295,10 @@ function makeYChips(ci){
           c.style.background='';c.style.color='';c.style.borderColor='';
           c.classList.remove('on');c.dataset.on='0';
         }else{
-          ST[ci].years.push(y);
-          c.style.background=yCol(y);c.style.color='#fff';c.style.borderColor=yCol(y);
+          ST[ci].years.push(y);c.style.background=yCol(y);c.style.color='#fff';c.style.borderColor=yCol(y);
           c.classList.add('on');c.dataset.on='1';
         }
-        drawChart(ci, false);
+        drawChart(ci);
       };
       el.appendChild(c);
     })(ALL_YEARS[i]);
@@ -454,13 +309,12 @@ function makeMChips(ci){
   var el=document.getElementById('m'+ci);el.innerHTML='';
   for(var i=0;i<CM.length;i++){
     (function(m){
-      var c=document.createElement('span');c.className='chip on';
-      c.textContent=MN[m-1];
+      var c=document.createElement('span');c.className='chip on';c.textContent=MN[m-1];
       c.onclick=function(){
         var idx=ST[ci].months.indexOf(m);
         if(idx>-1){ST[ci].months.splice(idx,1);c.classList.remove('on');}
         else{ST[ci].months.push(m);c.classList.add('on');}
-        drawChart(ci, false);
+        drawChart(ci);
       };
       el.appendChild(c);
     })(CM[i]);
@@ -471,48 +325,37 @@ function togM(ci){
   var all=ST[ci].months.length===CM.length;
   ST[ci].months=all?[]:CM.slice();
   document.getElementById('m'+ci).querySelectorAll('.chip').forEach(function(c){c.classList.toggle('on',!all);});
-  drawChart(ci, false);
+  drawChart(ci);
 }
 
 function togAllY(ci){
   var all=ST[ci].years.length===ALL_YEARS.length;
   ST[ci].years=all?[]:ALL_YEARS.slice();
-  makeYChips(ci); drawChart(ci, false);
+  makeYChips(ci); drawChart(ci);
 }
 
 function renderCW(rows){
   var dateMap={};
   for(var i=0;i<rows.length;i++){
     var d=rows[i]['Report Date'];
-    if(d){
-      var parts=d.split('/');
-      if(parts.length===3){
-        var t=new Date(parseInt(parts[2]),parseInt(parts[0])-1,parseInt(parts[1])).getTime();
-        if(!dateMap[t]) dateMap[t]=d;
-      }
-    }
+    if(d){var parts=d.split('/');if(parts.length===3){var t=new Date(+parts[2],+parts[0]-1,+parts[1]).getTime();if(!dateMap[t])dateMap[t]=d;}}
   }
   var times=Object.keys(dateMap).map(Number).sort(function(a,b){return a-b;});
   if(!times.length) return;
   var latest=dateMap[times[times.length-1]];
   var wr=rows.filter(function(r){return r['Report Date']===latest;});
-  var rn=wr[0]?wr[0]['Report #']:'';
-  var wn=wr[0]?Math.round(parseFloat(wr[0]['Week #'])):'';
+  var rn=wr[0]?wr[0]['Report #']:'', wn=wr[0]?Math.round(parseFloat(wr[0]['Week #'])):'';
   document.getElementById('cw-meta').textContent='Report #'+rn+'  Week '+wn+'  Data as of '+latest+'  In Contracts';
-
   function fmt(n){if(n===''||n==null)return '--';var v=Number(n);if(isNaN(v))return n;return v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString();}
   function cc(n){var v=Number(n);return v>0?'pos':v<0?'neg':'';}
-
   var sorted=wr.slice().sort(function(a,b){
-    if(a['Old/New']==='total') return 1;if(b['Old/New']==='total') return -1;
+    if(a['Old/New']==='total') return 1; if(b['Old/New']==='total') return -1;
     var ay=parseFloat(a['Yr'])||0,by=parseFloat(b['Yr'])||0;
-    if(ay!==by) return ay-by;
-    return (parseFloat(a['Month'])||0)-(parseFloat(b['Month'])||0);
+    if(ay!==by) return ay-by; return (parseFloat(a['Month'])||0)-(parseFloat(b['Month'])||0);
   });
   var tb=document.getElementById('cw-body');tb.innerHTML='';
   for(var i=0;i<sorted.length;i++){
-    var r=sorted[i];
-    var tr=document.createElement('tr');tr.className=r['Old/New']||'';
+    var r=sorted[i],tr=document.createElement('tr');tr.className=r['Old/New']||'';
     tr.innerHTML='<td>'+(r['Futures Based On']||'--')+'</td>'
       +'<td>'+fmt(r['Unfixed Call Sales'])+'</td><td class="'+cc(r['Chg Sales'])+'">'+fmt(r['Chg Sales'])+'</td>'
       +'<td>'+fmt(r['Unfixed Call Purchases'])+'</td><td class="'+cc(r['Chg Purchases'])+'">'+fmt(r['Chg Purchases'])+'</td>'
@@ -521,42 +364,28 @@ function renderCW(rows){
   }
 }
 
-function generateTraderSummary(curRows, curWk, summaryData){
-  var old = summaryData.old;
-  var all = summaryData.all;
-  var newc = summaryData.new;
-  
-  var lines = [];
-  
-  var oldTrend = old.s < old.avgS ? "below" : "above";
-  lines.push("Old Crop unfixed sales at " + old.s.toLocaleString() + " (" + old.ps + "%ile) are " + oldTrend + " the 20yr avg of " + old.avgS.toLocaleString() + ", with purchases " + (old.p > old.avgP ? "exceeding" : "trailing") + " average at " + old.p.toLocaleString() + " (" + old.pp + "%ile).");
-  
-  var newTrend = newc.s < newc.avgS ? "light" : (newc.s > newc.avgS * 1.5 ? "heavy" : "moderate");
-  lines.push("New Crop shows " + newTrend + " selling interest at " + newc.s.toLocaleString() + " vs 20yr avg " + newc.avgS.toLocaleString() + " (" + newc.ps + "%ile), with imbalance of " + (newc.s-newc.p).toLocaleString() + " suggesting " + (newc.s > newc.p ? "net short bias" : "net long bias") + ".");
-  
-  var totalImb = (old.s-old.p) + (newc.s-newc.p);
-  var imbDirection = totalImb > 0 ? "net short" : "net long";
-  var weekChg = (old.cs + newc.cs) - (old.cp + newc.cp);
-  var chgText = weekChg > 0 ? "increasing " + imbDirection + " bias" : (weekChg < 0 ? "reducing " + imbDirection + " exposure" : "stable positioning");
-  lines.push("Combined All Crop imbalance of " + totalImb.toLocaleString() + " contracts (" + imbDirection + ") with week-on-week " + chgText + "—monitor " + (Math.abs(totalImb) > 50000 ? "elevated" : "moderate") + " price risk on unfixed positions.");
-  
-  document.getElementById('summary-text').innerHTML = lines.join('<br><br>');
+function generateTraderSummary(curRows,curWk,sumData){
+  var old=sumData.old,newc=sumData.new,lines=[];
+  function n(v){return v!==null?Math.round(v).toLocaleString():'N/A';}
+  lines.push('Old Crop unfixed sales at '+old.s.toLocaleString()+' ('+old.ps+'%ile) are '+(old.s<old.avgS?'below':'above')+' 20yr avg of '+n(old.avgS)+', with purchases '+(old.p>old.avgP?'exceeding':'trailing')+' avg at '+old.p.toLocaleString()+' ('+old.pp+'%ile).');
+  lines.push('New Crop '+(newc.s<newc.avgS?'light':(newc.s>newc.avgS*1.5?'heavy':'moderate'))+' selling at '+newc.s.toLocaleString()+' vs 20yr avg '+n(newc.avgS)+' ('+newc.ps+'%ile). Imbalance '+(newc.s-newc.p).toLocaleString()+' — '+(newc.s>newc.p?'net short':'net long')+' bias.');
+  var totalImb=(old.s-old.p)+(newc.s-newc.p),chg=(old.cs+newc.cs)-(old.cp+newc.cp);
+  lines.push('All Crop imbalance '+totalImb.toLocaleString()+' contracts ('+(totalImb>0?'net short':'net long')+'); week change '+(chg>0?'+':'')+chg.toLocaleString()+'. '+(Math.abs(totalImb)>50000?'Elevated':'Moderate')+' price risk on unfixed positions.');
+  document.getElementById('summary-text').innerHTML=lines.join('<br><br>');
 }
 
-function renderSummary(curRows, curWk){
+function renderSummary(curRows,curWk){
   if(!ALL_YEARS.length||!curWk) return;
   var years20=ALL_YEARS.slice(-20);
   function fmt(v){if(v===null||v===undefined||v==='')return '--';var n=Math.round(Number(v));return isNaN(n)?'--':(n<0?'('+Math.abs(n).toLocaleString()+')':n.toLocaleString());}
-  function fmtChg(v){if(v===null||v===undefined||v==='')return '--';var n=Math.round(Number(v));return isNaN(n)?'--':((n>0?'+':'')+n.toLocaleString());}
-  function pctCls(p){return p===null?'':(p>=70?'pct-hi':(p<=30?'pct-lo':'pct-mid'));}
-  function pctTxt(p){if(p===null)return '--';return p+'% '+(p>=70?'▲':(p<=30?'▼':'●'));}
+  function fmtC(v){if(v===null||v===undefined||v==='')return '--';var n=Math.round(Number(v));return isNaN(n)?'--':((n>0?'+':'')+n.toLocaleString());}
+  function pCls(p){return p===null?'':p>=70?'pct-hi':p<=30?'pct-lo':'pct-mid';}
+  function pTxt(p){if(p===null)return '--';return p+'% '+(p>=70?'\u25b2':p<=30?'\u25bc':'\u25cf');}
   function avg(a){return a.length?Math.round(a.reduce(function(x,y){return x+y;},0)/a.length):null;}
   function rng(a){return a.length?{mn:Math.min.apply(null,a),mx:Math.max.apply(null,a)}:null;}
   function pct(cur,a){if(!a.length)return null;return Math.round(100*a.filter(function(v){return v<=cur;}).length/a.length);}
-
   var CI={old:[0,1,2],all:[3,4,5],new:[6,7,8]};
-  var CLABELS={old:'Old Crop',all:'All Crop',new:'New Crop (All − Old)'};
-
+  var CL={old:'Old Crop',all:'All Crop',new:'New Crop (All \u2212 Old)'};
   function getCur(rows,crop){
     var s=0,p=0,cs=0,cp=0;
     for(var i=0;i<rows.length;i++){
@@ -564,73 +393,44 @@ function renderSummary(curRows, curWk){
       if(on==='total') continue;
       if(crop==='old'&&on!=='old') continue;
       if(crop==='new'&&on==='old') continue;
-      s +=parseInt(r['Unfixed Call Sales']  ||0)||0;
-      p +=parseInt(r['Unfixed Call Purchases']||0)||0;
-      cs+=parseInt(r['Chg Sales']            ||0)||0;
-      cp+=parseInt(r['Chg Purchases']        ||0)||0;
+      s+=parseInt(r['Unfixed Call Sales']||0)||0; p+=parseInt(r['Unfixed Call Purchases']||0)||0;
+      cs+=parseInt(r['Chg Sales']||0)||0; cp+=parseInt(r['Chg Purchases']||0)||0;
     }
     return {s:s,p:p,imb:s-p,cs:cs,cp:cp,ci:cs-cp};
   }
-
   function getHist(ci,wk){
     var vals=[];
-    for(var yi=0;yi<years20.length;yi++){
-      var v=getVal(ci,years20[yi],wk,CM);
-      if(v!==null) vals.push(v);
-    }
+    for(var yi=0;yi<years20.length;yi++){var v=getVal(ci,years20[yi],wk,CM);if(v!==null)vals.push(v);}
     return vals;
   }
-
-  var summaryData = {};
-  
-  var html='';
-  var crops=['old','all','new'];
-  for(var ci_i=0;ci_i<crops.length;ci_i++){
-    var crop=crops[ci_i];
-    var cur=getCur(curRows,crop);
-    var ids=CI[crop];
+  var sumData={},html='',crops=['old','all','new'];
+  for(var i=0;i<crops.length;i++){
+    var crop=crops[i],cur=getCur(curRows,crop),ids=CI[crop];
     var hs=getHist(ids[1],curWk),hp=getHist(ids[0],curWk),hi=getHist(ids[2],curWk);
     var rs=rng(hs),rp=rng(hp),ri=rng(hi);
     var ps=pct(cur.s,hs),pp=pct(cur.p,hp),pi=pct(cur.imb,hi);
-    var avgS=avg(hs), avgP=avg(hp), avgI=avg(hi);
-    
-    summaryData[crop] = {
-      s: cur.s, p: cur.p, imb: cur.imb,
-      cs: cur.cs, cp: cur.cp,
-      avgS: avgS, avgP: avgP, avgI: avgI,
-      ps: ps, pp: pp, pi: pi
-    };
-    
-    html+='<div class="sum-crop">'
-      +'<div class="sum-crop-hdr">'+CLABELS[crop]+'</div>'
-      +'<table class="sum-tbl"><thead><tr>'
-      +'<th></th><th>Sales</th><th>Chg</th><th>Purchases</th><th>Chg</th><th>Imbalance</th><th>Chg</th>'
-      +'</tr></thead><tbody>'
+    var avgS=avg(hs),avgP=avg(hp),avgI=avg(hi);
+    sumData[crop]={s:cur.s,p:cur.p,imb:cur.imb,cs:cur.cs,cp:cur.cp,avgS:avgS,avgP:avgP,avgI:avgI,ps:ps,pp:pp,pi:pi};
+    html+='<div class="sum-crop"><div class="sum-crop-hdr">'+CL[crop]+'</div>'
+      +'<table class="sum-tbl"><thead><tr><th></th><th>Sales</th><th>Chg</th><th>Purchases</th><th>Chg</th><th>Imbalance</th><th>Chg</th></tr></thead><tbody>'
       +'<tr class="sum-cur"><td>This Week</td>'
-      +'<td>'+fmt(cur.s)+'</td><td class="'+(cur.cs>=0?'pos':'neg')+'">'+fmtChg(cur.cs)+'</td>'
-      +'<td>'+fmt(cur.p)+'</td><td class="'+(cur.cp>=0?'pos':'neg')+'">'+fmtChg(cur.cp)+'</td>'
-      +'<td>'+fmt(cur.imb)+'</td><td class="'+(cur.ci>=0?'pos':'neg')+'">'+fmtChg(cur.ci)+'</td>'
-      +'</tr>'
-      +'<tr class="sum-avg"><td>20yr Avg (Wk '+curWk+')</td>'
-      +'<td>'+fmt(avgS)+'</td><td></td><td>'+fmt(avgP)+'</td><td></td><td>'+fmt(avgI)+'</td><td></td>'
-      +'</tr>'
+      +'<td>'+fmt(cur.s)+'</td><td class="'+(cur.cs>=0?'pos':'neg')+'">'+fmtC(cur.cs)+'</td>'
+      +'<td>'+fmt(cur.p)+'</td><td class="'+(cur.cp>=0?'pos':'neg')+'">'+fmtC(cur.cp)+'</td>'
+      +'<td>'+fmt(cur.imb)+'</td><td class="'+(cur.ci>=0?'pos':'neg')+'">'+fmtC(cur.ci)+'</td></tr>'
+      +'<tr class="sum-avg"><td>20yr Avg (Wk '+curWk+')</td><td>'+fmt(avgS)+'</td><td></td><td>'+fmt(avgP)+'</td><td></td><td>'+fmt(avgI)+'</td><td></td></tr>'
       +'<tr class="sum-pct"><td>Pct Rank</td>'
-      +'<td class="'+pctCls(ps)+'">'+pctTxt(ps)+'</td><td></td>'
-      +'<td class="'+pctCls(pp)+'">'+pctTxt(pp)+'</td><td></td>'
-      +'<td class="'+pctCls(pi)+'">'+pctTxt(pi)+'</td><td></td>'
-      +'</tr>'
+      +'<td class="'+pCls(ps)+'">'+pTxt(ps)+'</td><td></td>'
+      +'<td class="'+pCls(pp)+'">'+pTxt(pp)+'</td><td></td>'
+      +'<td class="'+pCls(pi)+'">'+pTxt(pi)+'</td><td></td></tr>'
       +'<tr class="sum-rng"><td>20yr Range</td>'
-      +'<td colspan="2">'+(rs?fmt(rs.mn)+' – '+fmt(rs.mx):'--')+'</td>'
-      +'<td colspan="2">'+(rp?fmt(rp.mn)+' – '+fmt(rp.mx):'--')+'</td>'
-      +'<td colspan="2">'+(ri?fmt(ri.mn)+' – '+fmt(ri.mx):'--')+'</td>'
-      +'</tr>'
+      +'<td colspan="2">'+(rs?fmt(rs.mn)+' &ndash; '+fmt(rs.mx):'--')+'</td>'
+      +'<td colspan="2">'+(rp?fmt(rp.mn)+' &ndash; '+fmt(rp.mx):'--')+'</td>'
+      +'<td colspan="2">'+(ri?fmt(ri.mn)+' &ndash; '+fmt(ri.mx):'--')+'</td></tr>'
       +'</tbody></table></div>';
   }
   document.getElementById('sum-grid').innerHTML=html;
-  
-  generateTraderSummary(curRows, curWk, summaryData);
+  generateTraderSummary(curRows,curWk,sumData);
 }
-
 
 function showErr(msg){
   document.getElementById('err').style.display='block';
@@ -639,50 +439,41 @@ function showErr(msg){
   document.getElementById('badge').className='err';
 }
 
-function printPDF(){
-  // Simple approach - just trigger print and let CSS handle sizing
-  window.print();
-}
-
 function boot(){
-  var lmsg=document.getElementById('lmsg');
   var url='./data/cotton_oncall.csv?t='+Date.now();
-  lmsg.textContent='Fetching CSV...';
+  document.getElementById('lmsg').textContent='Fetching CSV...';
   fetch(url).then(function(res){
-    if(!res.ok) throw new Error('HTTP '+res.status);
+    if(!res.ok) throw new Error('HTTP '+res.status+' loading '+url);
     return res.text();
   }).then(function(text){
-    lmsg.textContent='Parsing...';
+    document.getElementById('lmsg').textContent='Parsing...';
     var rows=parseCSV(text);
-    if(!rows.length) throw new Error('No data rows found');
-    ALL_DATA=rows;
-    buildData(rows);
+    if(!rows.length) throw new Error('No data rows. First line: '+text.split('\n')[0].substring(0,200));
+    ALL_DATA=rows; buildData(rows);
     ALL_YEARS=Object.keys(DATA).sort();
-
+    var maxW=0;
+    for(var y in DATA) for(var w in DATA[y]){var n=parseInt(w);if(n>maxW)maxW=n;}
+    WL=[]; for(var i=1;i<=maxW;i++) WL.push('W'+i);
     var curY=new Date().getFullYear();
-    var defYears=ALL_YEARS.filter(function(y){
-      var yi=parseInt(y);
-      return yi>=curY-4 && yi<=curY && yi>2005;
-    });
+    var defYears=ALL_YEARS.filter(function(y){var yi=parseInt(y);return yi>=curY-4&&yi<=curY&&yi>2005;});
     for(var ci=0;ci<9;ci++) ST[ci].years=defYears.slice();
-
     renderCW(rows);
-    var _sumWk=0;
-    for(var _i=0;_i<rows.length;_i++){try{var _w=Math.round(parseFloat(rows[_i]['Week #']));if(_w){_sumWk=_w;break;}}catch(e){}}
-    var _sumDates={};
-    for(var _i=0;_i<rows.length;_i++){var _d=rows[_i]['Report Date'];if(_d){var _pts=_d.split('/');if(_pts.length===3){var _t=new Date(+_pts[2],+_pts[0]-1,+_pts[1]).getTime();_sumDates[_t]=_d;}}}
-    var _sumTimes=Object.keys(_sumDates).map(Number).sort(function(a,b){return a-b;});
-    var _latest=_sumTimes.length?_sumDates[_sumTimes[_sumTimes.length-1]]:'';
-    var _curRows=rows.filter(function(r){return r['Report Date']===_latest;});
-    renderSummary(_curRows,_sumWk);
-    for(var ci=0;ci<9;ci++){makeCard(ci);makeYChips(ci);makeMChips(ci);drawChart(ci, false);}
-
+    var _wk=0,_dm={};
+    for(var _i=0;_i<rows.length;_i++){
+      try{var _w=Math.round(parseFloat(rows[_i]['Week #']));if(_w&&!_wk)_wk=_w;}catch(e){}
+      var _d=rows[_i]['Report Date'];
+      if(_d){var _p=_d.split('/');if(_p.length===3){var _t=new Date(+_p[2],+_p[0]-1,+_p[1]).getTime();_dm[_t]=_d;}}
+    }
+    var _ts=Object.keys(_dm).map(Number).sort(function(a,b){return a-b;});
+    var _lat=_ts.length?_dm[_ts[_ts.length-1]]:'';
+    var _cr=rows.filter(function(r){return r['Report Date']===_lat;});
+    renderSummary(_cr,_wk);
+    for(var ci=0;ci<9;ci++){makeCard(ci);makeYChips(ci);makeMChips(ci);drawChart(ci);}
     var allDates=[];
-    for(var i=0;i<rows.length;i++){if(rows[i]['Report Date']) allDates.push(rows[i]['Report Date']);}
+    for(var i=0;i<rows.length;i++){if(rows[i]['Report Date'])allDates.push(rows[i]['Report Date']);}
     allDates.sort(function(a,b){
       var pa=a.split('/'),pb=b.split('/');
-      return new Date(parseInt(pa[2]),parseInt(pa[0])-1,parseInt(pa[1]))
-           - new Date(parseInt(pb[2]),parseInt(pb[0])-1,parseInt(pb[1]));
+      return new Date(+pa[2],+pa[0]-1,+pa[1])-new Date(+pb[2],+pb[0]-1,+pb[1]);
     });
     document.getElementById('badge').textContent='Last report: '+(allDates[allDates.length-1]||'--');
     document.getElementById('badge').className='ok';
