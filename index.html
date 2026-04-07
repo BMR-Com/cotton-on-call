@@ -296,7 +296,6 @@ function buildData(rows){
     DATA[yr][wk][mon].aP+=p; DATA[yr][wk][mon].aS+=s;
     if(on==='old'){DATA[yr][wk][mon].oP+=p; DATA[yr][wk][mon].oS+=s;}
   }
-  // Build week labels based on actual max week
   WL=[];
   for(var i=1;i<=MAX_WEEK;i++) WL.push('W'+i);
 }
@@ -421,9 +420,10 @@ function drawChart(ci, isPrint){
 }
 
 function makeCard(ci){
-  var crop=Math.floor(ci/3),type=ci%3;
+  var crop=Math.floor(ci/3);
+  var type=ci%3;
   var div=document.createElement('div');div.className='card';
-  div.innerHTML='<div class="ct">'+CROP_LABELS[crop]+' — '+TITLES[typeIdx]+'</div>'
+  div.innerHTML='<div class="ct">'+CROP_LABELS[crop]+' — '+TITLES[type]+'</div>'
     +'<div class="cr no-print"><div><div class="cl">Years <span class="tog" onclick="togAllY('+ci+')">all/none</span></div>'
     +'<div class="chips" id="y'+ci+'"></div></div>'
     +'<div><div class="cl">Months <span class="tog" onclick="togM('+ci+')">all/none</span></div>'
