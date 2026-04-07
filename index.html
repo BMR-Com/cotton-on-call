@@ -90,14 +90,14 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
   .sum-crop-hdr { font-size:5pt; padding:2px 4px; }
   
   header { background: #1a3a5c !important; padding: 2px 6px; box-shadow: none; page-break-after: avoid; }
-  header h1 { font-size: 7pt; }
-  header p  { font-size: 5.5pt; }
+  header h1 { font-size: 8pt; }
+  header p  { font-size: 6pt; }
   .page { max-width: 100%; padding: 2px; }
   .cw { box-shadow: none; border: 1px solid #ddd; padding: 4px; margin-bottom: 4px; border-radius: 3px; page-break-inside: avoid; }
-  .cw h2 { font-size: 7pt; }
-  .cw-meta { font-size: 5.5pt; }
-  .cw-tbl { font-size: 5.5pt; }
-  .cw-tbl th { font-size: 5pt; padding: 1px 2px; }
+  .cw h2 { font-size: 7.5pt; }
+  .cw-meta { font-size: 6pt; }
+  .cw-tbl { font-size: 6pt; }
+  .cw-tbl th { font-size: 5.5pt; padding: 1px 2px; }
   .cw-tbl td { padding: 1px 2px; }
   
   /* 3 charts per page - fill entire page */
@@ -376,11 +376,16 @@ function buildDS(ci){
 function drawChart(ci, isPrint){
   var ds=buildDS(ci),net=IS_NET[ci%3];
   var container = document.getElementById('ch'+ci).parentNode;
+  var canvas = document.getElementById('ch'+ci);
+  
+  // Get container dimensions for print
+  var containerWidth = container.clientWidth;
+  var containerHeight = container.clientHeight;
   
   if(isPrint){
-    container.style.height = '100%';
-  } else {
-    container.style.height = '255px';
+    // Set explicit dimensions on canvas for print
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
   }
   
   var cropIdx = Math.floor(ci/3);
@@ -390,12 +395,16 @@ function drawChart(ci, isPrint){
   if(CH[ci]){
     CH[ci].data.datasets=ds;
     CH[ci].options.plugins.title.text = titleText;
-    CH[ci].resize();
+    if(isPrint && containerWidth > 0 && containerHeight > 0){
+      CH[ci].resize(containerWidth, containerHeight);
+    } else {
+      CH[ci].resize();
+    }
     CH[ci].update('none');
     return;
   }
   
-  var ctx=document.getElementById('ch'+ci).getContext('2d');
+  var ctx=canvas.getContext('2d');
   CH[ci]=new Chart(ctx,{type:'line',data:{labels:WL,datasets:ds},options:{
     responsive:true,
     maintainAspectRatio:false,
@@ -649,23 +658,39 @@ function showErr(msg){
 }
 
 function printPDF(){
+  // Get all chart containers and resize for print
   for(var ci=0;ci<9;ci++){
-    drawChart(ci, true);
+    var container = document.getElementById('ch'+ci).parentNode;
+    var canvas = document.getElementById('ch'+ci);
+    // Set canvas to fill container
+    canvas.style.width = container.clientWidth + 'px';
+    canvas.style.height = container.clientHeight + 'px';
+  }
+  
+  // Now resize charts with explicit dimensions
+  for(var ci=0;ci<9;ci++){
+    var container = document.getElementById('ch'+ci).parentNode;
+    if(CH[ci] && container.clientWidth > 0 && container.clientHeight > 0){
+      CH[ci].resize(container.clientWidth, container.clientHeight);
+    }
   }
   
   setTimeout(function(){
     window.print();
     
+    // Restore after print
     setTimeout(function(){
       for(var ci=0;ci<9;ci++){
+        var canvas = document.getElementById('ch'+ci);
         var container = document.getElementById('ch'+ci).parentNode;
-        container.style.height = '255px';
+        canvas.style.width = '';
+        canvas.style.height = '';
         if(CH[ci]){
           CH[ci].resize();
         }
       }
     }, 100);
-  }, 100);
+  }, 200);
 }
 
 function boot(){
