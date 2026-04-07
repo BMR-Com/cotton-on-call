@@ -55,15 +55,27 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
 .sum-outer h2{font-size:.85rem;font-weight:700;color:#1a3a5c;margin-bottom:10px}
 /* Unified summary table */
 .sum-tbl{width:100%;border-collapse:collapse;font-size:.72rem}
-.sum-tbl th{background:#1a3a5c;color:#fff;padding:5px 10px;text-align:right;font-size:.72rem;white-space:nowrap}
+.sum-tbl th{background:#1a3a5c;color:#fff;padding:5px 10px;text-align:right;font-size:.72rem;white-space:nowrap;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .sum-tbl th:first-child{text-align:left;min-width:100px}
-.sum-tbl th.crop-hdr{background:#2e86c1;font-size:.72rem}
+.sum-tbl th.crop-hdr{font-size:.72rem;text-align:center}
+.sum-tbl th.crop-old{background:#1a5276;border-left:2px solid #fff}
+.sum-tbl th.crop-all{background:#1a6b3c;border-left:2px solid #fff}
+.sum-tbl th.crop-new{background:#6c3483;border-left:2px solid #fff}
+.sum-tbl th.sub-hdr{background:#2c3e50;font-size:.68rem;font-weight:500}
+.sum-tbl th.sub-hdr.s-old{background:#1e4d7a;border-left:2px solid #7fb3d3}
+.sum-tbl th.sub-hdr.s-all{background:#1d6a38;border-left:2px solid #82e0aa}
+.sum-tbl th.sub-hdr.s-new{background:#5b2c6f;border-left:2px solid #c39bd3}
 .sum-tbl td{padding:3px 10px;text-align:right;border-bottom:1px solid #f0f0f0;white-space:nowrap;font-size:.72rem}
 .sum-tbl td:first-child{text-align:left;color:#555;font-size:.72rem;padding-left:6px}
+.sum-tbl td.c-old{background:rgba(26,82,118,0.04);border-left:2px solid #aed6f1}
+.sum-tbl td.c-old-last{background:rgba(26,82,118,0.04);border-right:2px solid #aed6f1}
+.sum-tbl td.c-all{background:rgba(26,107,60,0.04);border-left:2px solid #a9dfbf}
+.sum-tbl td.c-all-last{background:rgba(26,107,60,0.04);border-right:2px solid #a9dfbf}
+.sum-tbl td.c-new{background:rgba(108,52,131,0.04);border-left:2px solid #d7bde2}
+.sum-tbl td.c-new-last{background:rgba(108,52,131,0.04);border-right:2px solid #d7bde2}
 .sum-tbl tr.metric-hdr td{background:#eef2f7;font-weight:700;color:#1a3a5c;font-size:.73rem;padding:5px 10px;border-top:2px solid #2e86c1}
 .sum-tbl tr.cur-row td:not(:first-child){font-weight:700;color:#1a3a5c}
 .sum-tbl tr.avg-row td:not(:first-child){color:#888}
-.sum-tbl tr.pct-row td:not(:first-child){font-size:.72rem}
 .pct-hi{color:#1a7a1a;font-weight:700}.pct-lo{color:#c0392b;font-weight:700}.pct-mid{color:#888}
 /* Range bar */
 .rng-cell{min-width:140px;padding:4px 10px !important}
@@ -109,14 +121,30 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
   .sum-outer { box-shadow: none; border: 1px solid #ddd; padding: 3px;
     margin-bottom: 4px; page-break-inside: avoid; }
   .sum-outer h2 { font-size: 6.5pt; margin-bottom: 2px; }
-  .sum-grid { display: grid; grid-template-columns: repeat(3,1fr) !important; gap: 3px; }
-  .sum-crop { border: 1px solid #ccc; border-radius: 2px; }
-  .sum-crop-hdr { font-size: 5pt; padding: 1px 3px;
-    background: #1a3a5c !important; color: #fff !important;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .sum-tbl { font-size: 4.5pt; }
-  .sum-tbl th { font-size: 4pt; padding: 1px 2px; background: #eef2f7 !important; }
-  .sum-tbl td { padding: 1px 2px; }
+  .sum-grid { display: block; }
+  .sum-tbl { font-size: 5pt; width: 100%; }
+  .sum-tbl th {
+    font-size: 5pt; padding: 2px 3px;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .sum-tbl th.crop-old { background: #1a5276 !important; color: #fff !important; }
+  .sum-tbl th.crop-all { background: #1a6b3c !important; color: #fff !important; }
+  .sum-tbl th.crop-new { background: #6c3483 !important; color: #fff !important; }
+  .sum-tbl th.sub-hdr.s-old { background: #1e4d7a !important; color: #fff !important; }
+  .sum-tbl th.sub-hdr.s-all { background: #1d6a38 !important; color: #fff !important; }
+  .sum-tbl th.sub-hdr.s-new { background: #5b2c6f !important; color: #fff !important; }
+  .sum-tbl th:first-child { background: #1a3a5c !important; color: #fff !important; }
+  .sum-tbl td { font-size: 5pt; padding: 1px 3px; }
+  .sum-tbl td.c-old { background: rgba(26,82,118,0.08) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sum-tbl td.c-old-last { background: rgba(26,82,118,0.08) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sum-tbl td.c-all { background: rgba(26,107,60,0.08) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sum-tbl td.c-all-last { background: rgba(26,107,60,0.08) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sum-tbl td.c-new { background: rgba(108,52,131,0.08) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sum-tbl td.c-new-last { background: rgba(108,52,131,0.08) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .rng-bar-outer { height: 6px !important; }
+  .rng-bar-marker { height: 10px !important; top: -2px !important; }
+  .rng-labels { font-size: 4pt !important; }
+  .rng-pct { font-size: 4pt !important; }
 
   /* Section labels */
   .sec { font-size: 6pt; padding: 2px 0 2px 5px; margin-top: 2px; margin-bottom: 4px; }
@@ -506,15 +534,16 @@ function renderSummary(curRows, curWk){
   }
 
   // Range bar HTML
-  function rangeBar(cur, vals20){
-    if(!vals20.length) return '<td class="rng-cell">--</td>';
+  function rangeBar(cur, vals20, tdCls){
+    var cls = tdCls ? 'rng-cell '+tdCls : 'rng-cell';
+    if(!vals20.length) return '<td class="'+cls+'">--</td>';
     var mn=Math.min.apply(null,vals20), mx=Math.max.apply(null,vals20);
     var p=pct(cur,vals20);
     var range=mx-mn||1;
     var fillPct=Math.max(0,Math.min(100,Math.round((cur-mn)/range*100)));
     var color=p>=70?'#1a7a1a':p<=30?'#c0392b':'#2e86c1';
     var pClass=p>=70?'pct-hi':p<=30?'pct-lo':'pct-mid';
-    return '<td class="rng-cell">'
+    return '<td class="'+cls+'">'
       +'<div class="rng-wrap">'
       +'<div class="rng-labels"><span>'+fmtN(mn)+'</span><span>'+fmtN(mx)+'</span></div>'
       +'<div class="rng-bar-outer">'
@@ -527,17 +556,22 @@ function renderSummary(curRows, curWk){
   }
 
   // Build HTML
+  var CSUB=[
+    ['sub-hdr s-old','sub-hdr s-old','sub-hdr s-old'],
+    ['sub-hdr s-all','sub-hdr s-all','sub-hdr s-all'],
+    ['sub-hdr s-new','sub-hdr s-new','sub-hdr s-new']
+  ];
   var html='<table class="sum-tbl"><thead><tr>'
-    +'<th></th>'
-    +'<th class="crop-hdr" colspan="3">Old Crop</th>'
-    +'<th class="crop-hdr" colspan="3">All Crop</th>'
-    +'<th class="crop-hdr" colspan="3">New Crop</th>'
+    +'<th style="background:#1a3a5c"></th>'
+    +'<th class="crop-hdr crop-old" colspan="3">Old Crop</th>'
+    +'<th class="crop-hdr crop-all" colspan="3">All Crop</th>'
+    +'<th class="crop-hdr crop-new" colspan="3">New Crop</th>'
     +'</tr><tr>'
-    +'<th></th>';
-  for(var ci=0;ci<3;ci++){
-    html+='<th>Value</th><th>Chg</th><th>20yr Range</th>';
-  }
-  html+='</tr></thead><tbody>';
+    +'<th style="background:#1a3a5c"></th>'
+    +'<th class="sub-hdr s-old">Value</th><th class="sub-hdr s-old">Chg</th><th class="sub-hdr s-old">20yr Range</th>'
+    +'<th class="sub-hdr s-all">Value</th><th class="sub-hdr s-all">Chg</th><th class="sub-hdr s-all">20yr Range</th>'
+    +'<th class="sub-hdr s-new">Value</th><th class="sub-hdr s-new">Chg</th><th class="sub-hdr s-new">20yr Range</th>'
+    +'</tr></thead><tbody>';
 
   for(var mi=0;mi<METRICS.length;mi++){
     var m=METRICS[mi];
@@ -545,13 +579,15 @@ function renderSummary(curRows, curWk){
     html+='<tr class="metric-hdr"><td colspan="10">'+m.label+'</td></tr>';
 
     // This week row
+    var CCLS=['c-old','c-all','c-new'];
+    var CLAST=['c-old-last','c-all-last','c-new-last'];
     html+='<tr class="cur-row"><td>&#9658; This Week</td>';
     for(var ci=0;ci<CROPS.length;ci++){
       var crop=CROPS[ci], cur=CUR[crop][m.key], chg=CUR[crop][m.chgKey];
       var chgCls=chg>0?'pct-hi':chg<0?'pct-lo':'';
-      html+='<td>'+fmtN(cur)+'</td>'
-           +'<td class="'+chgCls+'">'+fmtC(chg)+'</td>';
-      html+=rangeBar(cur, HIST[crop][m.key].v20);
+      html+='<td class="'+CCLS[ci]+'">'+fmtN(cur)+'</td>'
+           +'<td class="'+CCLS[ci]+' '+chgCls+'">'+fmtC(chg)+'</td>';
+      html+=rangeBar(cur, HIST[crop][m.key].v20, CCLS[ci]);
     }
     html+='</tr>';
 
@@ -559,7 +595,7 @@ function renderSummary(curRows, curWk){
     html+='<tr class="avg-row"><td>&nbsp;&nbsp;5yr Avg</td>';
     for(var ci=0;ci<CROPS.length;ci++){
       var a=avgOf(HIST[CROPS[ci]][m.key].v5);
-      html+='<td>'+fmtN(a)+'</td><td></td><td></td>';
+      html+='<td class="'+CCLS[ci]+'">'+fmtN(a)+'</td><td class="'+CCLS[ci]+'"></td><td class="'+CCLS[ci]+'"></td>';
     }
     html+='</tr>';
 
@@ -567,7 +603,7 @@ function renderSummary(curRows, curWk){
     html+='<tr class="avg-row"><td>&nbsp;&nbsp;10yr Avg</td>';
     for(var ci=0;ci<CROPS.length;ci++){
       var a=avgOf(HIST[CROPS[ci]][m.key].v10);
-      html+='<td>'+fmtN(a)+'</td><td></td><td></td>';
+      html+='<td class="'+CCLS[ci]+'">'+fmtN(a)+'</td><td class="'+CCLS[ci]+'"></td><td class="'+CCLS[ci]+'"></td>';
     }
     html+='</tr>';
 
@@ -575,7 +611,7 @@ function renderSummary(curRows, curWk){
     html+='<tr class="avg-row"><td>&nbsp;&nbsp;20yr Avg</td>';
     for(var ci=0;ci<CROPS.length;ci++){
       var a=avgOf(HIST[CROPS[ci]][m.key].v20);
-      html+='<td>'+fmtN(a)+'</td><td></td><td></td>';
+      html+='<td class="'+CCLS[ci]+'">'+fmtN(a)+'</td><td class="'+CCLS[ci]+'"></td><td class="'+CCLS[ci]+'"></td>';
     }
     html+='</tr>';
   }
