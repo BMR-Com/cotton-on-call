@@ -1,8 +1,8 @@
 name: Weekly Cotton On-Call Scrape
-
 on:
   schedule:
-    - cron: '30 19 * * 4'
+    - cron: '30 19 * * 4'   # 3:30pm EDT (UTC-4, Mar–Nov)
+    - cron: '30 20 * * 4'   # 3:30pm EST (UTC-5, Nov–Mar)
   workflow_dispatch:
 
 jobs:
@@ -12,17 +12,31 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install requests beautifulsoup4
-      - run: python scrape.py
-      - run: |
-          git config user.name "github-actions[bot]"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 matplotlib fpdf2
+
+      - name: Run scraper (with retry logic built in)
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO:   ${{ secrets.EMAIL_TO }}
+        run: python scrape.py
+
+      - name: Commit updated CSV if changed
+        run: |
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/cotton_oncall.csv
           if git diff --staged --quiet; then
-            echo "No changes"
+            echo "No CSV changes to commit"
           else
             git commit -m "data: weekly update $(date -u +'%Y-%m-%d')"
             git push
