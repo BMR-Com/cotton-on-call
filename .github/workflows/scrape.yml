@@ -18,7 +18,14 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4 matplotlib fpdf2
+        run: |
+          pip uninstall -y fpdf  # Remove old fpdf if present
+          pip install requests beautifulsoup4 matplotlib fpdf2
+
+      - name: Install fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-dejavu-core fonts-liberation
 
       - name: Run scraper (with retry logic built in)
         env:
