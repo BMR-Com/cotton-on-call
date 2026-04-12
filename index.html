@@ -662,7 +662,7 @@ function boot(){
     renderCW(rows);
     var _wk=0,_dm={};
     for(var _i=0;_i<rows.length;_i++){
-      try{var _w=Math.round(parseFloat(rows[_i]['Week #']));if(_w&&!_wk)_wk=_w;}catch(e){}
+      try{var _w=Math.round(parseFloat(rows[_i]['Week #']));if(_w>_wk)_wk=_w;}catch(e){}
       var _d=rows[_i]['Report Date'];
       if(_d){var _p=_d.split('/');if(_p.length===3){var _t=new Date(+_p[2],+_p[0]-1,+_p[1]).getTime();_dm[_t]=_d;}}
     }
