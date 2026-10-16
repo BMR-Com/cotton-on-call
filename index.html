@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CFTC Cotton On-Call Dashboard</title>
+<title>BMR-Com · Cotton On-Call Intelligence</title>
+<meta name="description" content="Weekly cotton on-call brief by BMR-Com.">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -189,19 +190,47 @@ header p{font-size:.75rem;opacity:.8;margin-top:2px}
   /* Old crop on page 1, All+New crop on page 2 */
   .page-break-before { page-break-before: always; }
 }
+
+/* ── On-call intelligence ── */
+.isec{background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:18px 20px;margin-bottom:14px}
+.ihdr{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;border-bottom:2px solid #1a3a5c;padding-bottom:10px;margin-bottom:12px}
+.ihdr h2{font-size:1.15rem;color:#1a3a5c}.ihdr p{font-size:.76rem;color:#666;margin-top:3px}
+.iscore{border-radius:10px;padding:8px 14px;text-align:center;min-width:130px}.iscore span{display:block;font-size:.66rem;text-transform:uppercase;letter-spacing:.5px;color:#555}
+.iscore b{font-size:1.6rem;font-family:monospace}.iscore small{display:block;font-size:.72rem}
+.iscore.bull{background:#e3f6ea;color:#14713e}.iscore.bear{background:#fde8e6;color:#a8322a}.iscore.flat{background:#eef1f4;color:#444}
+.ikpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:14px}
+.ik{background:#f6f8fb;border-radius:8px;padding:8px 10px}.ik span{display:block;font-size:.66rem;color:#666;text-transform:uppercase;letter-spacing:.3px}
+.ik b{display:block;font-size:1.15rem;font-family:monospace;color:#1a1a1a}.ik small{font-size:.7rem;color:#555}
+.ik.bull b{color:#1a8c4e}.ik.bear b{color:#c0392b}
+.ibrief{display:grid;grid-template-columns:170px 1fr;gap:6px 14px;font-size:.84rem;line-height:1.55;color:#222}
+.ibh{font-weight:700;color:#1a3a5c;text-transform:uppercase;font-size:.7rem;letter-spacing:.5px;padding-top:3px}
+.icharts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.icharts>div{height:300px;background:#fafbfc;border-radius:8px;padding:8px}
+.ititle{font-size:.82rem;font-weight:700;color:#1a3a5c;margin:16px 0 6px}
+.itbl{width:100%;border-collapse:collapse;font-size:.76rem}.itbl th{background:#1a3a5c;color:#fff;padding:6px;font-weight:600;text-align:center}
+.itbl td{padding:5px 6px;border-bottom:1px solid #eef1f4}.itbl td.n{text-align:right;font-family:monospace}.itbl td.cur{outline:2px solid #1a3a5c;outline-offset:-2px;font-weight:700}
+.pos{color:#1a8c4e}.neg{color:#c0392b}.muted{color:#888}
+.ifind{font-size:.8rem;line-height:1.55;margin:6px 0 0 18px;color:#333}.ifind li{margin-bottom:4px}
+.inote{font-size:.72rem;color:#666;margin-top:8px;line-height:1.5}
+#siteFooter{max-width:1800px;margin:0 auto 24px;padding:12px 14px;font-size:.72rem;color:#666;border-top:1px solid #d5dbe3}
+@media(max-width:900px){.icharts{grid-template-columns:1fr}.ibrief{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div id="loading"><div class="spin"></div><h2>Loading Cotton On-Call Data</h2><p id="lmsg" style="font-size:.82rem;color:#555">Fetching CSV...</p></div>
 <header>
-  <div><h1>CFTC Cotton On-Call Dashboard</h1><p>Unfixed call cotton positions &middot; New York Cotton futures &middot; ICE Futures U.S.</p></div>
+  <div><h1><span style="color:#ffe066">BMR-Com</span> · Cotton On-Call Intelligence</h1><p>CFTC unfixed call sales &amp; purchases &middot; linked to COT, WASDE and USDA export sales &middot; ICE Cotton No. 2</p></div>
   <div class="hdr-right">
-    <button class="btn-print" onclick="window.print()">&#128424; Print / Save PDF</button>
     <div id="badge">Loading...</div>
   </div>
 </header>
 <div class="page">
   <div id="err"></div>
+  <div class="isec" id="intelSec">
+    <div class="ihdr"><div><h2>&#129517; Weekly On-Call Brief</h2><p id="intelSub">Loading…</p></div></div>
+    <div class="ikpis" id="intelKpis"></div>
+    <div class="ibrief" id="intelBrief"></div>
+    <div class="inote">BMR-Com weekly read of the CFTC Cotton On-Call report alongside COT positioning, USDA trade forecasts and export sales. Commentary for research and discussion — not investment advice.</div>
+  </div>
   <div class="trader-summary"><h3>&#128202; Market Summary</h3><p id="summary-text">Loading analysis...</p></div>
   <div class="cw">
     <h2>Current Week Report</h2>
@@ -687,5 +716,7 @@ function boot(){
 }
 boot();
 </script>
+<footer id="siteFooter"><b>BMR-Com</b> · independent cotton research. Data: CFTC Cotton On-Call and Commitments of Traders, USDA WASDE and Export Sales, ICE prices via Yahoo Finance; rebuilt weekly by GitHub Actions. Not investment advice. Source: <a href="https://github.com/BMR-Com/cotton-on-call">github.com/BMR-Com/cotton-on-call</a></footer>
+<script src="intel/intel.js"></script>
 </body>
 </html>
