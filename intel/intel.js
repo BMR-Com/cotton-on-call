@@ -13,7 +13,8 @@
       kpi('Old-crop sales (mills)', k(L.S_old), sg(L.dS_old) + ' w/w · ' + Math.round(L.S_old_seas_pct) + 'th pct vs 5 seasons') +
       kpi('Old-crop purchases', k(L.P_old), sg(L.dP_old) + ' w/w · ' + Math.round(L.P_old_seas_pct) + 'th pct') +
       kpi('Total purchases', k(L.P), sg(L.dP8) + ' over 8w') +
-      kpi('Old-crop sales ÷ PMU long', L.Sold_pmuL.toFixed(2) + '×', L.Sold_pmuL > 2 ? 'mills uncovered' : L.Sold_pmuL < 1 ? 'mills well covered' : 'mixed cover') +
+      kpi('Old-crop PMU long/short', L.ls_old.toFixed(2), Math.round(L.ls_old_pct) + 'th pct of 3 yrs · net ' + k(L.pmu_net_old)) +
+      kpi('Net old-crop on-call', k(L.N_old), L.N_old >= 0 ? 'mill side' : 'producer side', L.N_old >= 0 ? 'bull' : 'bear') +
       kpi('Front: ' + L.front, k(L.S_front) + ' / ' + k(L.P_front), 'sales / purchases · ' + L.wks_to_fnd + ' wks to FND') +
       kpi('Front/next spread', S ? (S.now >= 0 ? '+' : '') + S.now.toFixed(2) + '¢' : '–', S && S.wk_ago != null ? ((S.now - S.wk_ago) >= 0 ? '+' : '') + (S.now - S.wk_ago).toFixed(2) + '¢ w/w' : '') +
       kpi('Managed money', k(L.mm_net), sg(L.mm_chg) + ' w/w · COT idx ' + Math.round(L.mm_idx)) +

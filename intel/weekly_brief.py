@@ -89,6 +89,11 @@ def cot():
     s = json.loads(fetch("cot")); a = s["ct"]["all"]
     df = pd.DataFrame({"pmu_l": a["prod_merc"]["l"], "pmu_s": a["prod_merc"]["s"], "sd_s": a["swap_dealers"]["s"],
                        "mm_l": a["managed_money"]["l"], "mm_s": a["managed_money"]["s"]}, index=pd.to_datetime(s["dates"])).astype(float)
+    o = s["ct"].get("old") or a
+    df["pmu_l_old"] = pd.to_numeric(pd.Series(o["prod_merc"]["l"], index=df.index), errors="coerce")
+    df["pmu_s_old"] = pd.to_numeric(pd.Series(o["prod_merc"]["s"], index=df.index), errors="coerce")
+    df["pmu_net_old"] = df.pmu_l_old - df.pmu_s_old
+    df["ls_old"] = df.pmu_l_old / df.pmu_s_old
     df["mm_net"] = df.mm_l - df.mm_s
     lo, hi = df.mm_net.rolling(156, min_periods=52).min(), df.mm_net.rolling(156, min_periods=52).max()
     df["mm_idx"] = (df.mm_net - lo) / (hi - lo) * 100
@@ -137,7 +142,9 @@ def main():
     sp_s, av_s = seasonal_pct(w, "S_old"); sp_p, av_p = seasonal_pct(w, "P_old")
     fr = cc.iloc[0] if len(cc) else None; nx = cc.iloc[1] if len(cc) > 1 else None
     wks_fnd = round((fr.fnd - t).days / 7, 1) if fr is not None else None
-    C = cot().iloc[-1]; Cp = cot().iloc[-2]; cot_date = cot().index[-1].strftime("%Y-%m-%d")
+    CT = cot(); C = CT.iloc[-1]; Cp = CT.iloc[-2]; cot_date = CT.index[-1].strftime("%Y-%m-%d")
+    ls3 = CT.ls_old.dropna().iloc[-156:]
+    ls_pct = (ls3 < C.ls_old).mean() * 100 if len(ls3) > 50 else None
     W = wasde(my); E = esr()
     nxt_cm = pd.Timestamp(year=fr.cm.year + (1 if fr.cm.month == 12 else 0), month=NEXT[fr.cm.month], day=1) if fr is not None else None
     SP = spread(fr.cm, nxt_cm) if fr is not None else None
@@ -152,7 +159,9 @@ def main():
          "OI_front": i(fr.OI) if fr is not None else None, "wks_to_fnd": wks_fnd,
          "front2": nx.fb if nx is not None else None, "S_2nd": i(nx.S) if nx is not None else None,
          "pmu_l": i(C.pmu_l), "pmu_s": i(C.pmu_s), "sd_s": i(C.sd_s), "mm_net": i(C.mm_net), "mm_chg": i(C.mm_net - Cp.mm_net),
-         "mm_idx": f(C.mm_idx, 0), "Sold_pmuL": f(cov_s), "P_cov": f(cov_p), "Sold_pct_trade": f(pct_trade, 3),
+         "mm_idx": f(C.mm_idx, 0), "Sold_pmuL": f(cov_s), "N_old": i(L.S_old - L.P_old),
+         "pmu_l_old": i(C.pmu_l_old), "pmu_s_old": i(C.pmu_s_old), "pmu_net_old": i(C.pmu_net_old),
+         "pmu_net_old_chg": i(C.pmu_net_old - Cp.pmu_net_old), "ls_old": f(C.ls_old, 3), "ls_old_pct": f(ls_pct, 0), "P_cov": f(cov_p), "Sold_pct_trade": f(pct_trade, 3),
          "px": f(SP["front_px"]) if SP else None, **{k_: W.get(k_) for k_ in ("w_trade", "us_exp", "br_exp", "wasde_month")},
          "us_outst_mb": f(E["us_outst_mb"]), "cn_share": f(E["cn_share"], 3), "esr_week": E["esr_week"]}
 
@@ -162,13 +171,23 @@ def main():
           f"Against the same week of the last five seasons, sales are at the {ordn(sp_s)} percentile (avg {k(av_s)}) and purchases "
           f"at the {ordn(sp_p)} (avg {k(av_p)}). Beyond this season, merchants hold {k(X['S_new'])} of new-crop sales and "
           f"{k(X['P_new'])} of new-crop purchases."}]
-    cov_txt = ("mills look largely uncovered, so fixing is more likely to mean buying futures in the market" if cov_s > 2
-               else "mills hold substantial futures cover, so much of the fixing can move by EFP rather than fresh buying" if cov_s < 1
-               else "cover is mixed")
-    B.append({"h": "Mills and producers", "t":
-              f"Old-crop unfixed sales are {cov_s:.2f}× the PMU gross long of {k(X['pmu_l'])} (COT {cot_date}): **{cov_txt}**. "
-              f"Total unfixed purchases of {k(X['P'])} ({sgn(X['dP8'])} over 8 weeks) compare with {k(X['pmu_s'])} PMU shorts and "
-              f"{k(X['sd_s'])} swap-dealer shorts — producer fixing is latent selling, whether it runs through PMU hedges or swap structures."})
+    n_old = L.S_old - L.P_old
+    if ls_pct is not None and ls_pct <= 30:
+        ls_txt = ("commercials hold relatively little long cover, so fixing the mill-side book is more likely to need buying in the market"
+                  if n_old > 0 else "commercials hold relatively little long cover")
+    elif ls_pct is not None and ls_pct >= 70:
+        ls_txt = ("commercials are unusually long — mills appear to have pre-bought futures, so much of the fixing can pass by EFP "
+                  "with little fresh buying" if n_old > 0 else "commercials are unusually long relative to their shorts")
+    else:
+        ls_txt = "commercial cover is in its normal range"
+    B.append({"h": "Mills, merchants and producers", "t":
+              f"Net old-crop on-call is {sgn(n_old)} ({'mill' if n_old >= 0 else 'producer'} side). In old-crop COT, producers/merchants/"
+              f"processors/users hold {k(X['pmu_l_old'])} long and {k(X['pmu_s_old'])} short (net {sgn(X['pmu_net_old'])}, "
+              f"{sgn(X['pmu_net_old_chg'])} w/w). Their long/short ratio of {C.ls_old:.2f} sits at the {ordn(ls_pct)} percentile of the "
+              f"last three years: **{ls_txt}**. The net and the ratio matter more than gross longs, which include calendar-spread legs "
+              f"held by trade houses. On the other side, total unfixed purchases of {k(X['P'])} ({sgn(X['dP8'])} over 8 weeks) compare "
+              f"with {k(X['pmu_s'])} PMU shorts and {k(X['sd_s'])} swap-dealer shorts — producer fixing is latent selling, whether it "
+              f"runs through PMU hedges or swap structures."})
     if fr is not None:
         sp_txt = ""
         if SP:
@@ -185,7 +204,9 @@ def main():
                   f"China {E['cn_share']*100:.0f}%."})
     B.append({"h": "Speculators", "t":
               f"Managed money is net {'long' if C.mm_net >= 0 else 'short'} {k(abs(C.mm_net))} ({sgn(X['mm_chg'])} w/w; 3-yr COT index "
-              f"{X['mm_idx']:.0f}). " + ("Spec length is high alongside covered mills, leaving less fresh buying from either side." if C.mm_idx > 70 and cov_s < 1.3
+              f"{X['mm_idx']:.0f}). " + (("Spec length is elevated; with commercials light on long cover, mill fixing could still add buying, "
+              "but a long spec book can also liquidate." if (ls_pct or 50) <= 30 else
+              "Spec length is elevated while commercials are not short of cover, leaving less fresh buying from either side.") if C.mm_idx > 70
               else "Spec length is light, so mill buying would meet little long liquidation." if C.mm_idx < 30 else "Spec positioning is not at an extreme.")})
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
