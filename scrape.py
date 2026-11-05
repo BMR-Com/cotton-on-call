@@ -710,6 +710,15 @@ def check_for_new_reports(existing_dates, new_rows):
 
 def main():
     existing_dates = read_existing_dates(CSV_PATH)
+    # Backup schedules: skip at once if this week's report (as of last Friday) is already stored.
+    try:
+        from datetime import datetime as _dt
+        _latest = max(_dt.strptime(d, "%m/%d/%Y").date() for d in existing_dates)
+        if (date.today() - _latest).days < 8 and not os.environ.get("FORCE_SCRAPE"):
+            print(f"Latest report {_latest} is this week's; nothing to do")
+            sys.exit(0)
+    except Exception as _e:
+        print("date check skipped:", _e)
     new_rows = []
     found_total = 0
 
